@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html dir="ltr"><head><script>(function () {
+  var m = {"images/wvhSZZkg2I4c45k7QRN2vyO68":"framerusercontent.com/images/wvhSZZkg2I4c45k7QRN2vyO68.jpg","images/wGrqDff8QHtt4PXzMsos8WVXJI":"framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI.png","images/vKBS9C3RJNkcYZLBU3IHvfLjv0":"framerusercontent.com/images/vKBS9C3RJNkcYZLBU3IHvfLjv0.png","images/BI1q9FfyMAeVA3VVQYv2goJnig":"framerusercontent.com/images/BI1q9FfyMAeVA3VVQYv2goJnig.png","images/3x12wclyJrsyLTLEdRiGAcsys":"framerusercontent.com/images/3x12wclyJrsyLTLEdRiGAcsys.png","assets/NeGmSOXrPBfEFIy5YZeHq17LEDA":"framerusercontent.com/assets/NeGmSOXrPBfEFIy5YZeHq17LEDA.woff2","assets/lEJLP4R0yuCaMCjSXYHtJw72M":"framerusercontent.com/assets/lEJLP4R0yuCaMCjSXYHtJw72M.woff2","assets/1ZFS7N918ojhhd0nQWdj3jz4w":"framerusercontent.com/assets/1ZFS7N918ojhhd0nQWdj3jz4w.woff2","assets/hyOgCu0Xnghbimh0pE8QTvtt2AU":"framerusercontent.com/assets/hyOgCu0Xnghbimh0pE8QTvtt2AU.woff2","assets/A0Wcc7NgXMjUuFdquHDrIZpzZw0":"framerusercontent.com/assets/A0Wcc7NgXMjUuFdquHDrIZpzZw0.woff2","assets/oYaAX5himiTPYuN8vLWnqBbfD2s":"framerusercontent.com/assets/oYaAX5himiTPYuN8vLWnqBbfD2s.woff2","assets/5A3Ce6C9YYmCjpQx9M4inSaKU":"framerusercontent.com/assets/5A3Ce6C9YYmCjpQx9M4inSaKU.woff2","assets/cRJyLNuTJR5jbyKzGi33wU9cqIQ":"framerusercontent.com/assets/cRJyLNuTJR5jbyKzGi33wU9cqIQ.woff2","assets/xYYWaj7wCU5zSQH0eXvSaS19wo":"framerusercontent.com/assets/xYYWaj7wCU5zSQH0eXvSaS19wo.woff2","assets/otTaNuNpVK4RbdlT7zDDdKvQBA":"framerusercontent.com/assets/otTaNuNpVK4RbdlT7zDDdKvQBA.woff2","assets/d3tHnaQIAeqiE5hGcRw4mmgWYU":"framerusercontent.com/assets/d3tHnaQIAeqiE5hGcRw4mmgWYU.woff2","assets/6mJuEAguuIuMog10gGvH5d3cl8":"framerusercontent.com/assets/6mJuEAguuIuMog10gGvH5d3cl8.woff2","assets/DolVirEGb34pEXEp8t8FQBSK4":"framerusercontent.com/assets/DolVirEGb34pEXEp8t8FQBSK4.woff2","assets/Qx95Xyt0Ka3SGhinnbXIGpEIyP4":"framerusercontent.com/assets/Qx95Xyt0Ka3SGhinnbXIGpEIyP4.woff2","images/0CzrUdIITts0xeeGVC53q6AHgc":"framerusercontent.com/images/0CzrUdIITts0xeeGVC53q6AHgc.png","images/8CzHO1rfZQpaf9XlsuzggTtEg":"framerusercontent.com/images/8CzHO1rfZQpaf9XlsuzggTtEg.png","images/Ayt7dcCT9fAjGZaPk6wuKGJslMU":"framerusercontent.com/images/Ayt7dcCT9fAjGZaPk6wuKGJslMU.png","images/PhExImUwbpxAs1tNEBY2rU2rO5k":"framerusercontent.com/images/PhExImUwbpxAs1tNEBY2rU2rO5k.png","images/Kq6VosSy8jdclArIT8XO0NKR3nI":"framerusercontent.com/images/Kq6VosSy8jdclArIT8XO0NKR3nI.png","images/Idhhpvy8DpBdlOgVGky6B9XPPCg":"framerusercontent.com/images/Idhhpvy8DpBdlOgVGky6B9XPPCg.png"};
+  function keyOf(u) {
+    var q = u.indexOf("?");
+    var p = (q === -1 ? u : u.slice(0, q)).split("/");
+    for (var i = 0; i < p.length - 1; i++) {
+      var seg = p[i].toLowerCase();
+      if (seg === "images" || seg === "assets" || seg === "modules") {
+        var id = p[i + 1];
+        var dot = id.lastIndexOf(".");
+        return seg + "/" + (dot === -1 ? id : id.slice(0, dot));
+      }
+    }
+    return null;
+  }
+  function fix(u) {
+    if (typeof u !== "string" || u.indexOf("framerusercontent.com") === -1) return u;
+    var k = keyOf(u);
+    var local = k && m[k];
+    return local ? "/" + local : u;
+  }
+  function fixSrcset(v) {
+    if (typeof v !== "string") return v;
+    return v.split(",").map(function (part) {
+      var t = part.trim();
+      if (!t) return t;
+      var sp = t.indexOf(" ");
+      return sp === -1 ? fix(t) : fix(t.slice(0, sp)) + t.slice(sp);
+    }).join(", ");
+  }
+  var proto = HTMLImageElement.prototype;
+  var srcDesc = Object.getOwnPropertyDescriptor(proto, "src");
+  Object.defineProperty(proto, "src", {
+    get: srcDesc.get,
+    set: function (v) { srcDesc.set.call(this, fix(v)); },
+    configurable: true,
+  });
+  var srcsetDesc = Object.getOwnPropertyDescriptor(proto, "srcset");
+  Object.defineProperty(proto, "srcset", {
+    get: srcsetDesc.get,
+    set: function (v) { srcsetDesc.set.call(this, fixSrcset(v)); },
+    configurable: true,
+  });
+})();</script>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=440">
+	<meta name="generator" content="Framer 560da95">
+	<title>My Framer Site</title>
+    <meta name="description" content="Made with Framer">
+    <meta name="framer-search-index" content="../../framerusercontent.com/sites/1R9z7OMfapkJGYZlJ36Gtp/searchIndex-hdex4TPaVRlt.json">
+    <meta name="framer-search-index-fallback" content="../../framerusercontent.com/sites/1R9z7OMfapkJGYZlJ36Gtp/searchIndex-HEkIIF336lXg.json">
+    <link href="../../framerusercontent.com/sites/icons/default-favicon-light.v1.png" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="../../framerusercontent.com/sites/icons/default-favicon-dark.v1.png" rel="icon" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" href="../../framerusercontent.com/sites/icons/default-touch-icon.v3.png">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="My Framer Site">
+    <meta property="og:description" content="Made with Framer">
+    <!-- X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="My Framer Site">
+    <meta name="twitter:description" content="Made with Framer">
+	
+	
+	<script>try{if(localStorage.getItem("__framer_force_showing_editorbar_since")){const n=document.createElement("link");n.rel="modulepreload";n.href="https://framer.com/edit/init.mjs";document.head.appendChild(n)}}catch(e){}</script>
+	<!-- Start of headStart -->
+    
+    <!-- End of headStart -->
+	<style data-framer-css-ssr="">
+		html, body, #main {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+	}
+	:root {
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+	}
+	* {
+		box-sizing: border-box;
+		-webkit-font-smoothing: inherit;
+	}
+	h1, h2, h3, h4, h5, h6, p, figure {
+		margin: 0;
+	}
+		body, input, textarea, select, button { font-size: 12px; font-family: sans-serif; }
+		body {  @supports (color: color(display-p3 1 1 1)) {  } }
+@media (prefers-color-scheme: dark) { body {  @supports (color: color(display-p3 1 1 1)) {  } } }
+		
+		@supports (z-index: calc(infinity)) {
+			#__framer-badge-container {
+				--infinity: infinity;
+			}
+		}
+
+		#__framer-badge-container {
+			position: fixed;
+			bottom: 0;
+			padding: 20px;
+			width: 100%;
+			display: flex;
+			justify-content: flex-end;
+			pointer-events: none;
+			z-index: calc(var(--infinity, 2147483647));
+		}
+		
+	</style>
+	<style data-framer-font-css="">/* math */
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/kumbhsans/v27/c4mP1n92AsfhuCq6tVsaoIx1LQICk0boNoq0SjlDfnzKo-bF3mdQEZEwir7vYko.woff2') format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/kumbhsans/v27/c4mP1n92AsfhuCq6tVsaoIx1LQICk0boNoq0SjlDfnzKo-bF3mdQEZEwmL7vYko.woff2') format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/kumbhsans/v27/c4mP1n92AsfhuCq6tVsaoIx1LQICk0boNoq0SjlDfnzKo-bF3mdQEZEw-L7vYko.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Kumbh Sans';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/kumbhsans/v27/c4mP1n92AsfhuCq6tVsaoIx1LQICk0boNoq0SjlDfnzKo-bF3mdQEZEw9r7v.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZ_LZmFDA.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZ-LZmFDA.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZwLZk.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZ_LZmFDA.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZ-LZmFDA.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZwLZk.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZ_LZmFDA.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZ-LZmFDA.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZwLZk.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZ_LZmFDA.woff2') format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZ-LZmFDA.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'League Spartan';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/leaguespartan/v15/kJEqBuEW6A0lliaV_m88ja5TwvZwLZk.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* devanagari */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJbecmNE.woff2') format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJnecmNE.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiEyp8kv8JHgFVrJJfecg.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* devanagari */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z11lFc-K.woff2') format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1JlFc-K.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFQ.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* devanagari */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z11lFc-K.woff2') format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1JlFc-K.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLEj6Z1xlFQ.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* devanagari */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z11lFc-K.woff2') format('woff2');
+  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1JlFc-K.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLCz7Z1xlFQ.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face { font-family: "League Spartan Placeholder"; src: local("Arial"); ascent-override: 75.22%; descent-override: 23.64%; line-gap-override: 0.00%; size-adjust: 93.06% }
+@font-face { font-family: "Kumbh Sans Placeholder"; src: local("Arial"); ascent-override: 93.32%; descent-override: 24.02%; line-gap-override: 0.00%; size-adjust: 105.69% }
+@font-face { font-family: "Poppins Placeholder"; src: local("Arial"); ascent-override: 92.83%; descent-override: 30.94%; line-gap-override: 8.84%; size-adjust: 113.11% }</style>
+	<link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="">
+	
+	<!-- Start of headEnd -->
+    
+    <!-- End of headEnd -->
+	
+<style type="text/css" data-framer-css="true"></style><meta name="robots" content="max-image-preview:large"><style>
+#__framer-editorbar-container {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+    position: fixed;
+    z-index: calc(2147483647);
+    width: max-content;
+    cursor: pointer;
+}
+
+#__framer-editorbar-label {
+    background-color: #111;
+    border-radius: 8px;
+    font-family: "Inter", "Inter-Regular", system-ui, Arial, sans-serif;
+    font-size: 12px;
+    height: fit-content;
+    opacity: 0;
+    padding: 4px 8px;
+    transition: opacity 0.4s ease-out;
+    font-weight: 500;
+    flex-shrink: 0;
+    position: fixed;
+    width: max-content;
+    pointer-events: none;
+    user-select: none;
+}
+
+#__framer-editorbar-button {
+    all: unset;
+    align-items: center;
+    border-radius: 15px;
+    display: flex;
+    height: 30px;
+    justify-content: center;
+    width: 30px;
+    flex-shrink: 0;
+}
+
+#__framer-editorbar-label.__framer-editorbar-button-tooltip-visible {
+    opacity: 1;
+}
+
+#__framer-editorbar-label, #__framer-editorbar-button {
+    backdrop-filter: blur(10px);
+    background-color: rgba(34, 34, 34, 0.8);
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px 0px, rgba(0, 0, 0, 0.05) 0px 1px 0px 0px, rgba(255, 255, 255, 0.15) 0px 0px 0px 1px;
+    color: #fff;
+}
+</style><style>
+#__framer-editorbar {
+    /* https://sergeyski.com/css-color-scheme-and-iframes-lessons-learned-from-disqus-background-bug */
+    color-scheme: light dark;
+    overflow: hidden;
+    position: fixed;
+    border: none;
+    z-index: calc(2147483647);
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    touch-action: manipulation;
+}
+
+@supports (height: 100dvh) {
+    #__framer-editorbar {
+        height: 100dvh;
+    }
+}
+
+#__framer-editorbar.status_hidden {
+    display: none;
+}
+
+#__framer-editorbar.status_visually_hidden {
+    clip-path: circle(1px at calc(100% - 1px) calc(100% - 1px));
+    z-index: calc(2147483647 - 1);
+}
+
+#__framer-editorbar.status_measuring {
+    clip-path: unset;
+}
+</style><link rel="canonical" data-framer-generated-canonical="" href="https://cultural-daisy-350893.framer.app/"><link rel="alternate" data-framer-generated-hreflang="" href="https://cultural-daisy-350893.framer.app/" hreflang="en-US"><link rel="alternate" data-framer-generated-hreflang="" href="https://cultural-daisy-350893.framer.app/" hreflang="x-default"></head>
+<body>
+	<script async="" src="../../events.framer.com/script.js" data-fid="24186912ac5c4a3245d809c236065c3af09735df595e52581deb67fdb11599e1" data-no-nt=""></script>
+	<!-- Start of bodyStart -->
+    
+    <!-- End of bodyStart -->
+	<script data-relative-date-script="global">!function(){var c=new Map;function p(e,t,n){let r=[n,{numeric:t,style:e}],o=JSON.stringify(r),s=c.get(o);if(s)return s;let i=new Intl.RelativeTimeFormat(...r);return c.set(o,i),i}function D(e,t,n,a,r,o,s){let i=U(e,t,n),d=F(e,t,i),u=p(a,r,s).format(d,i);return o?R(u):u}function R(e){return e.charAt(0).toUpperCase()+e.slice(1)}function U(e,t,n){if(n!=="auto")return n;let a=T(e,t);if(Math.abs(a)<=7)return"day";let r=g(e,t);if(Math.abs(r)<=4)return"week";let o=v(e,t);return Math.abs(o)<=12?"month":"year"}var h=1e3,y=6e4,C=36e5,M=864e5,w=6048e5;function F(e,t,n){let a=e.getTime()-t.getTime();switch(n){case"second":return Math.trunc(a/h);case"minute":return Math.trunc(a/y);case"hour":return Math.trunc(a/C);case"day":return T(e,t);case"week":return g(e,t);case"month":return v(e,t);case"quarter":return _(e,t);case"year":return x(e,t)}let r=n}function l(e){let t=new Date(e);return t.setUTCHours(0,0,0,0),t}function T(e,t){let n=l(e).getTime(),a=l(t).getTime();return Math.round((n-a)/M)}function f(e){let t=new Date(e),n=t.getUTCDay(),a=(n<1?7:0)+n-1;return t.setUTCDate(t.getUTCDate()-a),t.setUTCHours(0,0,0,0),t}function g(e,t){let n=f(e).getTime(),a=f(t).getTime();return Math.round((n-a)/w)}function v(e,t){let n=e.getUTCFullYear()-t.getUTCFullYear(),a=e.getUTCMonth()-t.getUTCMonth();return n*12+a}function m(e){let t=e.getUTCMonth();return Math.trunc(t/3)}function _(e,t){let n=e.getUTCFullYear()-t.getUTCFullYear(),a=m(e)-m(t);return n*4+a}function x(e,t){return e.getUTCFullYear()-t.getUTCFullYear()}window.__framer_formatRelativeDate=D;
+}()</script>
+	<div id="main"><style data-framer-html-style="">html body { background: rgb(246, 248, 245); }</style><div data-framer-root="" class="framer-2uVAl framer-nnzp06" style="min-height: 100vh; width: auto;"><div class="framer-77qv2q" data-framer-name="Rectangle 2"><div style="position: absolute; border-radius: inherit; corner-shape: inherit; inset: 0px;" data-framer-background-image-wrapper="true"><img decoding="auto" width="2731" height="4096" sizes="440px" srcset="../../framerusercontent.com/images/3x12wclyJrsyLTLEdRiGAcsys.png 682w, ../../framerusercontent.com/images/3x12wclyJrsyLTLEdRiGAcsys_1.png 1365w, ../../framerusercontent.com/images/3x12wclyJrsyLTLEdRiGAcsys_2.png 2731w" src="../../framerusercontent.com/images/3x12wclyJrsyLTLEdRiGAcsys_2.png" alt="" style="display: block; width: 100%; height: 100%; border-radius: inherit; corner-shape: inherit; object-position: center center; object-fit: cover;"></div></div><div class="framer-1yfi2hn" data-framer-name="Rectangle 3"><div class="framer-jk5hcd" data-framer-name="ARE YOU WINNING SON" data-framer-component-type="RichTextContainer" style="transform: translate(-50%, -50%);"><p style="--framer-font-size: 48px;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tNzAw; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 48px; --framer-font-weight: 700; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(255, 255, 255, 1);" class="framer-text">ARE YOU WINNING SON</span></p></div></div><div class="framer-uqq3a1" data-framer-name="logo"><div class="framer-1x452sp" data-framer-name="V" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 18.578075408935547px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 18.58px; --framer-font-weight: 800; --framer-text-color: rgba(246, 248, 245, 1);" class="framer-text">V</span></p></div><div class="framer-1ytl71z" data-framer-name="A" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 18.578075408935547px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 18.58px; --framer-font-weight: 800; --framer-text-color: rgba(246, 248, 245, 1);" class="framer-text">A</span></p></div><div class="framer-1mt3jq9" data-framer-name="Y" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 18.578075408935547px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 18.58px; --framer-font-weight: 800; --framer-text-color: rgba(246, 248, 245, 1);" class="framer-text">Y</span></p></div><div class="framer-d4t9ws" data-framer-name="G" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 18.578075408935547px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 18.58px; --framer-font-weight: 800; --framer-text-color: rgba(246, 248, 245, 1);" class="framer-text">G</span></p></div><div data-framer-component-type="SVG" data-framer-name="game-icons:soccer-ball" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1pv0ay3" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 22 24" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-797973668_2221"></use></svg></div></div><div class="framer-1frcly3" data-framer-name="R" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 18.578075408935547px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 18.58px; --framer-font-weight: 800; --framer-text-color: rgba(246, 248, 245, 1);" class="framer-text">R</span></p></div></div><div class="framer-lhq5i" data-framer-name="Best place to book sports field for you" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 16px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 16px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(250, 204, 21, 1);" class="framer-text">Best place to book sports field for  you</span></p></div><div class="framer-n67b56" data-framer-name="Rectangle 4"></div><div class="framer-1prtbec" data-framer-name="FIND VENUE" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 20px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tNjAw; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 20px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(27, 111, 58, 1);" class="framer-text">FIND VENUE</span></p></div><div class="framer-1toosiy" data-framer-name="Rectangle 6"><div style="position: absolute; border-radius: inherit; corner-shape: inherit; inset: 0px;" data-framer-background-image-wrapper="true"><img decoding="auto" width="842" height="632" sizes="400px" srcset="../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI.png 512w, ../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png 842w" src="../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png" alt="" style="display: block; width: 100%; height: 100%; border-radius: inherit; corner-shape: inherit; object-position: center center; object-fit: cover;"></div></div><div class="framer-cnzaat" data-framer-name="Rectangle 7"></div><div class="framer-22aada" data-framer-name="TRENDING IN MAGELANG" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 20px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tNjAw; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 20px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(255, 255, 255, 1);" class="framer-text">TRENDING IN MAGELANG</span></p></div><div class="framer-ici2w" data-framer-name="Check trending sport fields near your area, you can modify the result by choosing more options that suitable for you" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(255, 255, 255, 1);" class="framer-text">Check trending sport fields near your area, you can modify the result by choosing more options that suitable for you</span></p></div><div class="framer-1yo33jo" data-border="true" data-framer-name="Frame 4"><div class="framer-t0v0j9" data-framer-name="Search by name or location" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Search by name or location</span></p></div></div><div class="framer-yex4rn" data-border="true" data-framer-name="Frame 5"><div class="framer-xog5hv" data-framer-name="Sports Type" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Sports Type</span></p></div><div data-framer-component-type="SVG" data-framer-name="akar-icons:chevron-down" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1qhhy4t" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 20 20" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-2094378014_251"></use></svg></div></div></div><div class="framer-gj7dx6" data-framer-name="Frame 9"><div class="framer-nc2zbk" data-framer-name="SPORTS TYPE" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 20px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tNjAw; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 20px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(27, 111, 58, 1);" class="framer-text">SPORTS TYPE</span></p></div><div data-framer-component-type="SVG" data-framer-name="akar-icons:chevron-down" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-d417k5" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 20 20" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg1859302148_256"></use></svg></div></div></div><div class="framer-vl5mgf" data-framer-name="Frame 10"><div class="framer-p8cmqt" data-framer-name="LAST BOOKED" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 20px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tNjAw; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 20px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(27, 111, 58, 1);" class="framer-text">LAST BOOKED</span></p></div><div data-framer-component-type="SVG" data-framer-name="akar-icons:chevron-down" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-pyzqfh" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 20 20" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg1859302148_256"></use></svg></div></div></div><div class="framer-17f8vs8" data-framer-name="Frame 12"><div class="framer-1ptgyox" data-framer-name="BROWSE" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 20px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tNjAw; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 20px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(27, 111, 58, 1);" class="framer-text">BROWSE</span></p></div><div data-framer-component-type="SVG" data-framer-name="akar-icons:chevron-down" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-5u7wbb" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 20 20" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg1859302148_256"></use></svg></div></div></div><div class="framer-14zk7wm" data-border="true" data-framer-name="Frame 6"><div class="framer-18jfsw0" data-framer-name="Date &amp; Time" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Date &amp; Time</span></p></div><div data-framer-component-type="SVG" data-framer-name="ic:baseline-date-range" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-5h8e5s" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 22 22" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg1182423776_675"></use></svg></div></div></div><div class="framer-1ur9dxe" data-framer-name="Frame 7"><div data-framer-component-type="SVG" data-framer-name="search" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-18vjpm2" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 20 20" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg1093055678_646"></use></svg></div></div><div class="framer-16crv5e" data-framer-name="Frame 20"><div class="framer-1xx3w2j" data-framer-name="Search" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 20px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tNjAw; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 20px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(246, 248, 245, 1);" class="framer-text">Search</span></p></div></div></div><div class="framer-1j60xvi" data-framer-name="Frame 8"><div class="framer-7fe1ap" data-framer-name="Rectangle 8"><div style="position: absolute; border-radius: inherit; corner-shape: inherit; inset: 0px;" data-framer-background-image-wrapper="true"><img decoding="auto" width="1600" height="1048" sizes="140px" srcset="../../framerusercontent.com/images/vKBS9C3RJNkcYZLBU3IHvfLjv0.png 512w, ../../framerusercontent.com/images/vKBS9C3RJNkcYZLBU3IHvfLjv0_2.png 1024w, ../../framerusercontent.com/images/vKBS9C3RJNkcYZLBU3IHvfLjv0_1.png 1600w" src="../../framerusercontent.com/images/vKBS9C3RJNkcYZLBU3IHvfLjv0_1.png" alt="" style="display: block; width: 100%; height: 100%; border-radius: inherit; corner-shape: inherit; object-position: center center; object-fit: cover;"></div></div><div class="framer-1jnu4wi" data-framer-name="Rectangle 9"><div style="position: absolute; border-radius: inherit; corner-shape: inherit; inset: 0px;" data-framer-background-image-wrapper="true"><img decoding="auto" width="1200" height="800" sizes="140px" srcset="../../framerusercontent.com/images/wvhSZZkg2I4c45k7QRN2vyO68_1.jpg 512w, ../../framerusercontent.com/images/wvhSZZkg2I4c45k7QRN2vyO68.jpg 1024w, ../../framerusercontent.com/images/wvhSZZkg2I4c45k7QRN2vyO68.jpg 1200w" src="../../framerusercontent.com/images/wvhSZZkg2I4c45k7QRN2vyO68.jpg" alt="" style="display: block; width: 100%; height: 100%; border-radius: inherit; corner-shape: inherit; object-position: center center; object-fit: cover;"></div></div><div class="framer-181ktqu" data-framer-name="Rectangle 10"><div style="position: absolute; border-radius: inherit; corner-shape: inherit; inset: 0px;" data-framer-background-image-wrapper="true"><img decoding="auto" width="2880" height="1920" sizes="140px" srcset="../../framerusercontent.com/images/BI1q9FfyMAeVA3VVQYv2goJnig.png 512w, ../../framerusercontent.com/images/BI1q9FfyMAeVA3VVQYv2goJnig_1.png 1024w, ../../framerusercontent.com/images/BI1q9FfyMAeVA3VVQYv2goJnig_3.png 2048w, ../../framerusercontent.com/images/BI1q9FfyMAeVA3VVQYv2goJnig_2.png 2880w" src="../../framerusercontent.com/images/BI1q9FfyMAeVA3VVQYv2goJnig_2.png" alt="" style="display: block; width: 100%; height: 100%; border-radius: inherit; corner-shape: inherit; object-position: center center; object-fit: cover;"></div></div></div><div class="framer-8ebfnt" data-framer-name="Frame 11"><div class="framer-1k8qmhg" data-framer-name="card-lap"><div class="framer-766i8v" data-framer-name="card-img"><div style="position: absolute; border-radius: inherit; corner-shape: inherit; inset: 0px;" data-framer-background-image-wrapper="true"><img decoding="async" loading="lazy" width="842" height="632" sizes="200px" srcset="../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI.png 512w, ../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png 842w" src="../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png" alt="" style="display: block; width: 100%; height: 100%; border-radius: inherit; corner-shape: inherit; object-position: center center; object-fit: cover;"></div></div><div class="framer-1ev96ql" data-framer-name="card-body"><div class="framer-9mjqn1" data-framer-name="Lapangan Pancuranmas" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 16px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 16px; --framer-letter-spacing: 0.04em;" class="framer-text">Lapangan  Pancuranmas</span></p></div><div class="framer-12j4sei" data-framer-name="Magelang" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy02MDA=; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 130, 210, 1);" class="framer-text">Magelang</span></p></div><div class="framer-pqfq9x" data-framer-name="RP. 15,000/jam" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 16px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy02MDA=; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 16px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(27, 111, 58, 1);" class="framer-text">RP. 15,000/jam</span></p></div></div></div></div><div class="framer-o1e7uk" data-framer-name="Frame 17"><div class="framer-kw7qd2" data-border="true" data-framer-name="card-lap"><div class="framer-y58lw9" data-framer-name="card-img"><div style="position: absolute; border-radius: inherit; corner-shape: inherit; inset: 0px;" data-framer-background-image-wrapper="true"><img decoding="async" loading="lazy" width="842" height="632" sizes="399px" srcset="../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI.png 512w, ../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png 842w" src="../../framerusercontent.com/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png" alt="" style="display: block; width: 100%; height: 100%; border-radius: inherit; corner-shape: inherit; object-position: center center; object-fit: cover;"></div></div><div class="framer-90ao1h" data-framer-name="card-body"><div class="framer-13fc0l" data-framer-name="Frame 15"><div class="framer-1xat3py" data-framer-name="Football" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 10px; --framer-line-height: 5px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 10px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.3499999940395355);" class="framer-text">Football</span></p></div><div class="framer-1gheoaa" data-framer-name="Magelang" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 10px; --framer-line-height: 5px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 10px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.3499999940395355);" class="framer-text">Magelang</span></p></div></div><div class="framer-lb1wbu" data-framer-name="Lapangan Pancuranmas" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 16px; --framer-line-height: 20px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 16px; --framer-letter-spacing: 0.04em;" class="framer-text">Lapangan  Pancuranmas</span></p></div><div class="framer-1q20tng" data-framer-name="Frame 16"><div class="framer-b9647t" data-framer-name="star"><div data-framer-component-type="SVG" data-framer-name="Vector" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-6vb7sl" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 10 10" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-962818140_513"></use></svg></div></div><div data-framer-component-type="SVG" data-framer-name="Vector" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-18fjnyf" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 10 10" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-962818140_513"></use></svg></div></div><div data-framer-component-type="SVG" data-framer-name="Vector" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1a63023" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 10 10" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-962818140_513"></use></svg></div></div><div data-framer-component-type="SVG" data-framer-name="Vector" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-wugcjm" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 10 10" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-962818140_513"></use></svg></div></div><div data-framer-component-type="SVG" data-framer-name="Vector" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1yc3osu" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 10 10" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-769778247_498"></use></svg></div></div></div><div class="framer-vcv14c" data-framer-name="25 Reviews" data-framer-component-type="RichTextContainer" style="justify-content: flex-end; transform: none;"><p style="--framer-font-size: 10px; --framer-line-height: 8px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 10px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">25 Reviews</span></p></div></div><div class="framer-phi0uv" data-framer-name="RP. 15,000/jam" data-framer-component-type="RichTextContainer" style="justify-content: flex-end; transform: none;"><p style="--framer-font-size: 16px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy02MDA=; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 16px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(27, 111, 58, 1);" class="framer-text">RP. 15,000/jam</span></p></div></div><div data-framer-component-type="SVG" data-framer-name="Group 1" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1epknk3" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 25 25" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg1427676873_1069"></use></svg></div></div></div></div><div class="framer-ykjv6d" data-framer-name="GET YOUR ARSE MOVIN" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">GET YOUR ARSE MOVIN</span></p></div><div data-framer-component-type="SVG" data-framer-name="mage:filter-square" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-115t147" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 25 25" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg1885971188_1510"></use></svg></div></div><div class="framer-9cts5" data-framer-name="Frame 14"><div class="framer-1foacif" data-border="true" data-framer-name="Frame 4"><div class="framer-gsd86x" data-framer-name="Football" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 16px; --framer-line-height: 0px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tcmVndWxhcg==; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 16px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(27, 111, 58, 1);" class="framer-text">Football</span></p></div></div><div class="framer-slluz1" data-border="true" data-framer-name="Frame 13"><div class="framer-x0powf" data-framer-name="Indoor" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 16px; --framer-line-height: 0px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tcmVndWxhcg==; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 16px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Indoor</span></p></div></div></div><div class="framer-1p5sajc" data-framer-name="Group 18"><div class="framer-1pjwau9" data-framer-name="Rectangle 28"></div><div class="framer-1149c0s" data-framer-name="PT YPCTY" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 15px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy02MDA=; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 15px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em;" class="framer-text">PT YPCTY</span></p></div><div class="framer-t58az9" data-framer-name="Jl. Ahmad Yani, Kajoran Tengah, Tel Aviv, Israel City, Israel" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Jl. Ahmad Yani, Kajoran Tengah, Tel Aviv, Israel City, Israel</span></p></div><div class="framer-2farti" data-border="true" data-framer-name="Frame 54"><div class="framer-1qtjss8" data-framer-name="Group 13"><div class="framer-1aned4p" data-framer-name="Tentang Kami" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 15px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy02MDA=; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 15px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em;" class="framer-text">Tentang Kami</span></p></div><div class="framer-kqm5iq" data-framer-name="Informasi Kebijakan &amp; Privasi Syarat dan Ketentuan" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Informasi</span></p><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Kebijakan &amp; Privasi</span></p><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Syarat dan Ketentuan</span></p></div></div><div class="framer-ue4xpp" data-framer-name="Group 14"><div class="framer-29dwmm" data-framer-name="Kontak" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 15px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy02MDA=; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 15px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em;" class="framer-text">Kontak</span></p></div><div class="framer-bo8270" data-framer-name="rvpryg@hotmail +6256787881 Social Media" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">rvpryg@hotmail</span></p><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">+6256787881</span></p><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Social Media</span></p></div></div><div class="framer-1x66x99" data-framer-name="Group 15"><div class="framer-17n9du7" data-framer-name="Ekosistem" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 15px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy02MDA=; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 15px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em;" class="framer-text">Ekosistem</span></p></div><div class="framer-y21xo1" data-framer-name="Hosting server Afiliasi Perlindungan" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Hosting server</span></p><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Afiliasi</span></p><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Perlindungan</span></p></div></div><div class="framer-1snj2vs" data-framer-name="Group 16"><div class="framer-1uiammp" data-framer-name="Dukungan" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 15px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy02MDA=; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 15px; --framer-font-weight: 600; --framer-letter-spacing: 0.04em;" class="framer-text">Dukungan</span></p></div><div class="framer-19s4e4y" data-framer-name="Pusat bantuan Dokumentasi Daftarkan Akun" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Pusat bantuan</span></p><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Dokumentasi</span></p><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.6000000238418579);" class="framer-text">Daftarkan Akun</span></p></div></div></div><div class="framer-2yzzax" data-framer-name="logo"><div class="framer-1d3jq41" data-framer-name="V" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 15.203291893005371px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 15.2px; --framer-font-weight: 800; --framer-text-color: rgba(27, 112, 58, 1);" class="framer-text">V</span></p></div><div class="framer-zmmvbu" data-framer-name="A" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 15.203291893005371px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 15.2px; --framer-font-weight: 800; --framer-text-color: rgba(27, 112, 58, 1);" class="framer-text">A</span></p></div><div class="framer-9wm98v" data-framer-name="Y" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 15.203291893005371px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 15.2px; --framer-font-weight: 800; --framer-text-color: rgba(27, 112, 58, 1);" class="framer-text">Y</span></p></div><div class="framer-1o03h5d" data-framer-name="G" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 15.203291893005371px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 15.2px; --framer-font-weight: 800; --framer-text-color: rgba(27, 112, 58, 1);" class="framer-text">G</span></p></div><div data-framer-component-type="SVG" data-framer-name="game-icons:soccer-ball" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1mf1lwt" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 18 19" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg660613229_2211"></use></svg></div></div><div class="framer-5ieitg" data-framer-name="R" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 15.203291893005371px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7S3VtYmggU2Fucy04MDA=; --framer-font-family: &quot;Kumbh Sans&quot;; --framer-font-size: 15.2px; --framer-font-weight: 800; --framer-text-color: rgba(27, 112, 58, 1);" class="framer-text">R</span></p></div></div><div class="framer-1khvcwl" data-framer-name="© 2026 YPLOVRV Indonesia All Right Reserved" data-framer-component-type="RichTextContainer" style="justify-content: center; transform: none;"><p style="--framer-font-size: 13px;" class="framer-text"><span style="--font-selector: R0Y7UG9wcGlucy1yZWd1bGFy; --framer-font-family: &quot;Poppins&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em; --framer-text-color: rgba(0, 0, 0, 0.3499999940395355);" class="framer-text">© 2026 YPLOVRV Indonesia All Right Reserved</span></p></div><div data-framer-component-type="SVG" data-framer-name="Frame 53" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-129189l" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 440 30" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg1132083393_4035"></use></svg></div></div></div><div class="framer-18eg2ku" data-framer-name="botbar"><div class="framer-1lfywmo" data-framer-name="Frame 33"><div data-framer-component-type="SVG" data-framer-name="jam:home-f" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1xrcz5o" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 25 25" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-217157422_882"></use></svg></div></div><div class="framer-s5t19p" data-framer-name="Home" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tcmVndWxhcg==; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em;" class="framer-text">Home</span></p></div></div><a class="framer-lo3316 framer-xnx673" data-framer-name="Frame 34" href="../../cultural-daisy-350893.framer.app/browse/index.html"><div data-framer-component-type="SVG" data-framer-name="flowbite:search-solid" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1uk12yc" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 25 25" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-1519384940_1015"></use></svg></div></div><div class="framer-1v59isu" data-framer-name="Browse" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tcmVndWxhcg==; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em;" class="framer-text">Browse</span></p></div></a><a class="framer-1lyaabt framer-xnx673" data-framer-name="Frame 39" href="../../cultural-daisy-350893.framer.app/produk/index.html"><div data-framer-component-type="SVG" data-framer-name="fa7-brands:cash-app" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-x0yjhr" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 25 25" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg613529258_1842"></use></svg></div></div><div class="framer-f2621g" data-framer-name="Order" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tcmVndWxhcg==; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em;" class="framer-text">Order</span></p></div></a><div class="framer-1dro8pp" data-framer-name="Frame 37"><div data-framer-component-type="SVG" data-framer-name="bxs:user" parentsize="0" _constraints="[object Object]" rotation="0" shadows="" class="framer-1xhauqm" aria-hidden="true" style="image-rendering: pixelated; flex-shrink: 0; fill: rgb(0, 0, 0); color: rgb(0, 0, 0);"><div class="svgContainer" style="width: 100%; height: 100%; aspect-ratio: inherit;"><svg style="width:100%;height:100%;" viewBox="0 0 25 25" preserveAspectRatio="none" width="100%" height="100%"><use href="#svg-601931097_392"></use></svg></div></div><div class="framer-hzu2vp" data-framer-name="Profile" data-framer-component-type="RichTextContainer" style="transform: none;"><p style="--framer-font-size: 13px; --framer-text-alignment: center;" class="framer-text"><span style="--font-selector: R0Y7TGVhZ3VlIFNwYXJ0YW4tcmVndWxhcg==; --framer-font-family: &quot;League Spartan&quot;; --framer-font-size: 13px; --framer-letter-spacing: 0.04em;" class="framer-text">Profile</span></p></div></div></div></div><div id="overlay"></div></div>
+	<script>!function(){var w="framer_variant";function u(a,r){let e=r.indexOf("#"),t=e===-1?r:r.substring(0,e),o=e===-1?"":r.substring(e),n=t.indexOf("?"),h=n===-1?t:t.substring(0,n),d=n===-1?"":t.substring(n),s=new URLSearchParams(d),m=new URLSearchParams(a);for(let[i,l]of m)s.has(i)||i!==w&&s.append(i,l);let c=s.toString();return c===""?t+o:h+"?"+c+o}var g='div#main a[href^="#"],div#main a[href^="/"],div#main a[href^="."]',f="div#main a[data-framer-preserve-params]",S=document.currentScript?.hasAttribute("data-preserve-internal-params");if(window.location.search&&!navigator.webdriver&&!/bot|-google|google-|yandex|ia_archiver|crawl|spider/iu.test(navigator.userAgent)){let a=document.querySelectorAll(S?`${g},${f}`:f);for(let r of a){let e=u(window.location.search,r.href);r.setAttribute("href",e)}}
+}()</script>
+	
+	<div id="__framer-badge-container"><!--$--><!--$--><!--$--><a class="framer-6jWyo framer-n0ccwk framer-v-n0ccwk framer-bmpgw8 __framer-badge" data-framer-appear-id="n0ccwk" data-framer-name="Light" data-nosnippet="true" style="will-change: transform; pointer-events: auto; opacity: 1; transform: none;" href="https://www.framer.com/" rel="noopener" title="Create a free website with Framer, the website builder loved by startups, designers and agencies."><div class="framer-13yxzio" data-framer-name="Backdrop" style="background-color: rgb(255, 255, 255); border-radius: 10px; box-shadow: rgba(0, 0, 0, 0.17) 0px 0.602187px 1.56569px -1.5px, rgba(0, 0, 0, 0.14) 0px 2.28853px 5.95019px -3px, rgba(0, 0, 0, 0.02) 0px 10px 26px -4.5px; opacity: 1;"></div><div class="framer-19yaanm" data-framer-name="Content" style="transform: translate(-50%, -50%); opacity: 1;"><div class="framer-1kflzx5" style="opacity: 1;"><div data-framer-name="Logo" class="framer-hcsc7 framer-e50co" style="--1bd4d3i: rgb(0, 0, 0); --otdjsv: rgb(0, 0, 0); transform: translateX(-50%); opacity: 1;"></div></div><!--$--><p style="position:absolute;transform:scale(0.001)">Create a free website with Framer, the website builder loved by startups, designers and agencies.</p><div data-framer-name="Text" class="framer-g7oZR framer-1um7t9d" style="--1bd4d3i: rgb(0, 0, 0); --otdjsv: rgb(0, 0, 0); opacity: 1;"></div><!--/$--></div><div class="framer-j4ugry" data-framer-name="Bottom" style="mask:linear-gradient(180deg, rgba(0,0,0,0) 65%, rgba(0,0,0,1) 100%) add;-webkit-mask:linear-gradient(180deg, rgba(0,0,0,0) 65%, rgba(0,0,0,1) 100%) add;border-bottom-left-radius:11px;border-bottom-right-radius:11px;border-top-left-radius:11px;border-top-right-radius:11px;box-shadow:inset 0px 0px 0px 1px rgb(0, 0, 0);opacity:0.06"></div><div class="framer-jnuwbw" data-framer-name="Border" style="border-bottom-left-radius:11px;border-bottom-right-radius:11px;border-top-left-radius:11px;border-top-right-radius:11px;box-shadow:inset 0px 0px 0px 1px rgb(0, 0, 0);opacity:0.04"></div></a><!--/$--><!--/$--><!--/$--></div>
+	<script data-framer-appear-animation="no-preference"></script>
+	<script>typeof document<"u"&&(window.process={...window.process,env:{...window.process?.env,NODE_ENV:"production"}});</script>
+	<link rel="modulepreload" fetchpriority="low" href="../../framerusercontent.com/sites/1R9z7OMfapkJGYZlJ36Gtp/rolldown-runtime.Dh6celcD.mjs"><link rel="modulepreload" fetchpriority="low" href="../../framerusercontent.com/sites/1R9z7OMfapkJGYZlJ36Gtp/react.D20wc1Tc.mjs"><link rel="modulepreload" fetchpriority="low" href="../../framerusercontent.com/sites/1R9z7OMfapkJGYZlJ36Gtp/framer.dOqkMKxV.mjs"><link rel="modulepreload" fetchpriority="low" href="../../framerusercontent.com/sites/1R9z7OMfapkJGYZlJ36Gtp/motion.uC3ezD0d.mjs"><script type="module" async="" data-framer-bundle="main" fetchpriority="low" src="../../framerusercontent.com/sites/1R9z7OMfapkJGYZlJ36Gtp/script_main.CXaZljfC.mjs"></script>
+	<!-- Start of bodyEnd -->
+    
+    <!-- End of bodyEnd -->
+
+
+<div id="svg-templates" aria-hidden="true" style="position: absolute; overflow: hidden; bottom: 0px; left: 0px; width: 0px; height: 0px; z-index: 0; contain: strict;"><svg width="22" height="24" viewBox="0 0 22 24" fill="none" id="svg-797973668_2221">
+<path d="M10.9156 4.03886C10.853 4.03846 10.7904 4.03879 10.7279 4.03988C10.4981 4.04462 10.2683 4.06035 10.0398 4.08537C10.0512 4.09098 10.0584 4.0962 10.0559 4.10019L9.20022 5.43495L11.7232 7.10813L11.7189 7.11449L14.1299 7.12397L14.8745 5.57774L13.9134 4.6544C13.3716 4.42413 12.805 4.25629 12.2246 4.15417C11.7927 4.07836 11.3542 4.04045 10.9157 4.03886H10.9156ZM8.72663 5.88126L6.21221 7.12607L5.74067 10.4566L7.49342 11.5957L10.7141 10.1256L11.2219 7.53647L8.72666 5.88126H8.72663ZM15.4293 5.89291L14.7039 7.39899L15.9584 9.86018L18.0771 11.1769L18.4632 10.4566C18.4709 10.4615 18.4786 10.4703 18.4856 10.482C18.4594 10.3143 18.4273 10.1472 18.3897 9.98171C18.1697 9.01409 17.7551 8.0877 17.1778 7.27516C16.8682 6.83951 16.5113 6.43655 16.1163 6.07367L15.4293 5.89287L15.4293 5.89291ZM5.09742 6.67133C4.86167 6.94361 4.64486 7.2318 4.45093 7.53437C3.91579 8.36912 3.54834 9.31101 3.37775 10.2863C3.29467 10.7623 3.25786 11.245 3.26783 11.7279L3.95911 11.9003L5.08667 10.5296L5.58063 7.04146L5.09742 6.67133ZM15.7728 10.4905L13.8675 12.005L13.7491 15.4265L15.1018 16.1415L17.7368 14.463L17.8872 11.7977L17.884 11.8031L15.7728 10.4905L15.7728 10.4905ZM10.9648 10.7073L7.75474 12.1732L7.71316 14.7665L10.7567 16.7084L13.11 15.4752L13.2274 12.0315L10.9647 10.7073H10.9648ZM3.3105 12.3911C3.34157 12.6766 3.38868 12.9602 3.45238 13.2404C3.67239 14.208 4.08801 15.1343 4.66534 15.9469C4.79756 16.133 4.93913 16.3126 5.08776 16.4863L4.76776 14.8565L4.77199 14.8554L3.84926 12.5254L3.3105 12.3911ZM7.31099 15.2626L5.55182 15.5386L5.89746 17.3017C6.19017 17.5554 6.50187 17.7866 6.82989 17.9934C7.32983 18.308 7.8646 18.5646 8.42366 18.7581L10.5615 18.2948L10.4133 17.2414L7.31102 15.2625L7.31099 15.2626ZM17.6354 15.2795L15.4431 16.6756L14.0093 18.279L14.1598 18.4873C14.5704 18.2997 14.9644 18.0763 15.3343 17.8199C16.1526 17.2527 16.857 16.5235 17.3921 15.6887C17.4778 15.5551 17.5584 15.4183 17.6353 15.2795L17.6354 15.2795ZM13.444 18.5846L10.7151 18.9104L9.82858 19.1018C10.7501 19.2372 11.6965 19.2048 12.6044 19.0066C12.9257 18.9365 13.2422 18.8445 13.5517 18.7337L13.444 18.5846L13.444 18.5846Z" fill="#F6F8F5"></path>
+</svg><svg width="20" height="20" viewBox="0 0 20 20" fill="none" id="svg-2094378014_251">
+<path d="M3.33337 7.5L10 14.1667L16.6667 7.5" stroke="black" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg><svg width="20" height="20" viewBox="0 0 20 20" fill="none" id="svg1859302148_256">
+<path d="M7.5 16.6666L14.1667 9.99996L7.5 3.33329" stroke="black" stroke-opacity="0.6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg><svg width="22" height="22" viewBox="0 0 22 22" fill="none" id="svg1182423776_675">
+<path d="M8.25 10.0833H6.41667V11.9166H8.25V10.0833ZM11.9167 10.0833H10.0833V11.9166H11.9167V10.0833ZM15.5833 10.0833H13.75V11.9166H15.5833V10.0833ZM17.4167 3.66665H16.5V1.83331H14.6667V3.66665H7.33333V1.83331H5.5V3.66665H4.58333C3.56583 3.66665 2.75917 4.49165 2.75917 5.49998L2.75 18.3333C2.75 18.8195 2.94315 19.2859 3.28697 19.6297C3.63079 19.9735 4.0971 20.1666 4.58333 20.1666H17.4167C18.425 20.1666 19.25 19.3416 19.25 18.3333V5.49998C19.25 4.49165 18.425 3.66665 17.4167 3.66665ZM17.4167 18.3333H4.58333V8.24998H17.4167V18.3333Z" fill="black" fill-opacity="0.6"></path>
+</svg><svg width="20" height="20" viewBox="0 0 20 20" fill="none" id="svg1093055678_646">
+<circle cx="10" cy="10" r="10" fill="#FFF4C7"></circle>
+<path d="M16.5909 16.5908L13.5323 13.5267M15.2273 9.43175C15.2273 10.9688 14.6167 12.4429 13.5298 13.5298C12.443 14.6166 10.9689 15.2272 9.43181 15.2272C7.89476 15.2272 6.42066 14.6166 5.3338 13.5298C4.24694 12.4429 3.63635 10.9688 3.63635 9.43175C3.63635 7.8947 4.24694 6.4206 5.3338 5.33374C6.42066 4.24688 7.89476 3.63629 9.43181 3.63629C10.9689 3.63629 12.443 4.24688 13.5298 5.33374C14.6167 6.4206 15.2273 7.8947 15.2273 9.43175Z" stroke="#1B703A" stroke-width="2" stroke-linecap="round"></path>
+</svg><svg width="10" height="10" viewBox="0 0 10 10" fill="none" id="svg-962818140_513">
+<path d="M6.29297 3.07129L6.37988 3.24805L6.5752 3.27637L9.5498 3.70801L7.39746 5.80762L7.25586 5.94531L7.28906 6.13965L7.79688 9.10156L5.13672 7.7041L4.96289 7.6123L4.78809 7.7041L2.12695 9.10254L2.63574 6.13965L2.66895 5.94531L2.52832 5.80762L0.375 3.70898L3.35059 3.27637L3.54492 3.24805L3.63281 3.07129L4.96191 0.375977L4.96289 0.375L6.29297 3.07129Z" fill="#1B703A" stroke="#1B703A" stroke-width="0.75"></path>
+</svg><svg width="10" height="10" viewBox="0 0 10 10" fill="none" id="svg-769778247_498">
+<path d="M6.29297 3.07129L6.37988 3.24805L6.5752 3.27637L9.5498 3.70801L7.39746 5.80762L7.25586 5.94531L7.28906 6.13965L7.79688 9.10156L5.13672 7.7041L4.96289 7.6123L4.78809 7.7041L2.12695 9.10254L2.63574 6.13965L2.66895 5.94531L2.52832 5.80762L0.375 3.70898L3.35059 3.27637L3.54492 3.24805L3.63281 3.07129L4.96191 0.375977L4.96289 0.375L6.29297 3.07129Z" stroke="#1B703A" stroke-width="0.75"></path>
+</svg><svg width="25" height="25" viewBox="0 0 25 25" fill="none" id="svg1427676873_1069">
+<circle cx="12.5" cy="12.5" r="12.5" fill="#F6F8F5"></circle>
+<circle cx="12.5" cy="12.5" r="12" stroke="black" stroke-opacity="0.25"></circle>
+<path d="M16.25 5.9375C16.7473 5.9375 17.2242 6.13504 17.5758 6.48667C17.9275 6.83831 18.125 7.31522 18.125 7.8125V18.8684C18.1252 18.9613 18.0978 19.0521 18.0463 19.1293C17.9948 19.2065 17.9215 19.2668 17.8357 19.3023C17.75 19.3378 17.6556 19.3471 17.5646 19.329C17.4735 19.3108 17.3899 19.266 17.3244 19.2003L12.8319 14.7069C12.7883 14.6632 12.7366 14.6286 12.6797 14.605C12.6227 14.5813 12.5617 14.5692 12.5 14.5692C12.4383 14.5692 12.3773 14.5813 12.3203 14.605C12.2634 14.6286 12.2117 14.6632 12.1681 14.7069L7.67563 19.2003C7.61007 19.266 7.52647 19.3108 7.43543 19.329C7.34439 19.3471 7.25001 19.3378 7.16425 19.3023C7.0785 19.2668 7.00523 19.2065 6.95373 19.1293C6.90224 19.0521 6.87483 18.9613 6.875 18.8684V7.8125C6.875 7.31522 7.07254 6.83831 7.42418 6.48667C7.77581 6.13504 8.25272 5.9375 8.75 5.9375H16.25Z" fill="#D9D9D9"></path>
+</svg><svg width="25" height="25" viewBox="0 0 25 25" fill="none" id="svg1885971188_1510">
+<g clip-path="url(#svg1885971188_1510_clip0_41_55)">
+<circle cx="12.5" cy="12.5" r="12.5" fill="#31DA70" fill-opacity="0.36"></circle>
+<path d="M18.4895 9.17192H16.9927M16.9927 9.17192C16.9927 9.66838 16.7955 10.1445 16.4444 10.4955C16.0934 10.8466 15.6172 11.0438 15.1208 11.0438C14.6243 11.0438 14.1482 10.8466 13.7972 10.4955C13.4461 10.1445 13.2489 9.66838 13.2489 9.17192M16.9927 9.17192C16.9927 8.67547 16.7955 8.19935 16.4444 7.84831C16.0934 7.49726 15.6172 7.30005 15.1208 7.30005C14.6243 7.30005 14.1482 7.49726 13.7972 7.84831C13.4461 8.19935 13.2489 8.67547 13.2489 9.17192M13.2489 9.17192H6.51038M18.4895 15.8282H11.751M8.00829 15.8282C8.00829 15.3317 8.20447 14.8556 8.55551 14.5046C8.90656 14.1535 9.38267 13.9563 9.87913 13.9563C10.1249 13.9563 10.3684 14.0047 10.5955 14.0988C10.8226 14.1929 11.0289 14.3307 11.2027 14.5046C11.3766 14.6784 11.5144 14.8847 11.6085 15.1118C11.7026 15.3389 11.751 15.5824 11.751 15.8282C11.751 16.074 11.7026 16.3174 11.6085 16.5445C11.5144 16.7716 11.3766 16.978 11.2027 17.1518C11.0289 17.3256 10.8226 17.4635 10.5955 17.5576C10.3684 17.6516 10.1249 17.7001 9.87913 17.7001C9.38267 17.7001 8.90656 17.5028 8.55551 17.1518C8.20447 16.8007 8.00829 16.3246 8.00829 15.8282ZM8.00829 15.8282H6.51038" stroke="#1B703A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</g>
+<defs>
+<clipPath id="svg1885971188_1510_clip0_41_55">
+<rect width="25" height="25" fill="white"></rect>
+</clipPath>
+</defs>
+</svg><svg width="18" height="19" viewBox="0 0 18 19" fill="none" id="svg660613229_2211">
+<path d="M8.93269 3.30531C8.88147 3.30498 8.83025 3.30526 8.77904 3.30614C8.59103 3.31002 8.40297 3.3229 8.21599 3.34337C8.22529 3.34796 8.23119 3.35223 8.22912 3.3555L7.5289 4.4478L9.59358 5.81704L9.59009 5.82224L11.5631 5.83L12.1724 4.56465L11.3859 3.80903C10.9425 3.62059 10.4788 3.48324 10.0039 3.39967C9.65048 3.33763 9.29159 3.30661 8.93272 3.30531H8.93269ZM7.14134 4.81303L5.08368 5.83171L4.6978 8.55726L6.13215 9.48944L8.76779 8.28636L9.18334 6.16756L7.14137 4.81303H7.14134ZM12.6264 4.82256L12.0328 6.05506L13.0594 8.06916L14.7933 9.1467L15.1093 8.55726C15.1156 8.56122 15.1218 8.56842 15.1276 8.57803C15.1061 8.44082 15.0798 8.30403 15.0491 8.16862C14.869 7.37677 14.5298 6.61866 14.0574 5.95372C13.804 5.59721 13.5119 5.26745 13.1887 4.97049L12.6265 4.82253L12.6264 4.82256ZM4.17139 5.45958C3.97847 5.6824 3.80104 5.91824 3.64234 6.16585C3.20441 6.84896 2.90371 7.61975 2.76411 8.41792C2.69612 8.80739 2.666 9.20244 2.67416 9.59763L3.23986 9.73871L4.16259 8.617L4.56683 5.76247L4.17139 5.45958ZM12.9076 8.58498L11.3484 9.8244L11.2514 12.6243L12.3584 13.2095L14.5148 11.8359L14.6378 9.65476L14.6352 9.65911L12.9075 8.58495L12.9076 8.58498ZM8.97292 8.76241L6.346 9.962L6.31197 12.0843L8.80262 13.6734L10.7285 12.6642L10.8245 9.84606L8.97289 8.76241H8.97292ZM2.70908 10.1403C2.7345 10.374 2.77305 10.6061 2.82518 10.8353C3.00523 11.6272 3.34535 12.3852 3.81781 13.0502C3.926 13.2025 4.04185 13.3494 4.16349 13.4916L3.90162 12.1578L3.90508 12.157L3.14997 10.2502L2.70908 10.1403ZM5.98286 12.4902L4.54325 12.7161L4.82611 14.1589C5.06564 14.3665 5.32072 14.5557 5.58915 14.725C5.99828 14.9824 6.4359 15.1924 6.89341 15.3507L8.64294 14.9716L8.52158 14.1095L5.98289 12.4901L5.98286 12.4902ZM14.4318 12.5041L12.6377 13.6465L11.4644 14.9587L11.5875 15.1292C11.9235 14.9756 12.246 14.7928 12.5487 14.583C13.2184 14.1188 13.7948 13.5221 14.2327 12.8389C14.3028 12.7296 14.3688 12.6176 14.4318 12.504L14.4318 12.5041ZM11.0018 15.2088L8.76857 15.4754L8.04312 15.632C8.7972 15.7428 9.5717 15.7163 10.3147 15.5541C10.5776 15.4967 10.8367 15.4214 11.0899 15.3308L11.0018 15.2088L11.0018 15.2088Z" fill="#1B703A"></path>
+</svg><svg width="440" height="30" viewBox="0 0 440 30" fill="none" id="svg1132083393_4035">
+<path d="M43.125 13.9583C43.125 10.0302 43.125 8.06562 44.3458 6.84583C45.5667 5.62604 47.5302 5.625 51.4583 5.625H53.5417C57.4698 5.625 59.4344 5.625 60.6542 6.84583C61.874 8.06667 61.875 10.0302 61.875 13.9583V16.0417C61.875 19.9698 61.875 21.9344 60.6542 23.1542C59.4333 24.374 57.4698 24.375 53.5417 24.375H51.4583C47.5302 24.375 45.5656 24.375 44.3458 23.1542C43.126 21.9333 43.125 19.9698 43.125 16.0417V13.9583Z" stroke="black" stroke-opacity="0.35" stroke-width="2"></path>
+<path d="M57.1875 11.875C58.0504 11.875 58.75 11.1754 58.75 10.3125C58.75 9.44956 58.0504 8.75 57.1875 8.75C56.3246 8.75 55.625 9.44956 55.625 10.3125C55.625 11.1754 56.3246 11.875 57.1875 11.875Z" fill="black" fill-opacity="0.35"></path>
+<path d="M52.5 18.125C54.2259 18.125 55.625 16.7259 55.625 15C55.625 13.2741 54.2259 11.875 52.5 11.875C50.7741 11.875 49.375 13.2741 49.375 15C49.375 16.7259 50.7741 18.125 52.5 18.125Z" stroke="black" stroke-opacity="0.35" stroke-width="2"></path>
+<path d="M169.988 8.562C169.836 8.48363 169.688 8.39752 169.545 8.304C169.128 8.02894 168.746 7.70459 168.408 7.338C167.559 6.367 167.242 5.382 167.126 4.693H167.13C167.033 4.12 167.073 3.75 167.08 3.75H163.215V18.693C163.216 18.893 163.213 19.0913 163.207 19.288L163.203 19.361C163.203 19.3717 163.202 19.3827 163.2 19.394V19.403C163.159 19.939 162.987 20.4569 162.7 20.9109C162.412 21.365 162.017 21.7414 161.55 22.007C161.062 22.2855 160.511 22.431 159.95 22.429C158.15 22.429 156.69 20.961 156.69 19.148C156.69 17.335 158.15 15.866 159.95 15.866C160.291 15.866 160.63 15.92 160.954 16.026L160.959 12.09C159.975 11.9632 158.975 12.0416 158.023 12.3205C157.071 12.5993 156.187 13.0724 155.427 13.71C154.761 14.2888 154.201 14.9791 153.772 15.75C153.609 16.031 152.993 17.162 152.919 18.996C152.872 20.036 153.185 21.116 153.334 21.561V21.571C153.427 21.833 153.791 22.729 154.383 23.484C154.86 24.0896 155.424 24.6219 156.057 25.064V25.054L156.066 25.064C157.936 26.334 160.011 26.251 160.011 26.251C160.37 26.236 161.573 26.251 162.939 25.604C164.454 24.886 165.316 23.817 165.316 23.817C165.867 23.1785 166.305 22.4503 166.612 21.664C166.962 20.744 167.078 19.642 167.078 19.202V11.273C167.125 11.301 167.75 11.714 167.75 11.714C167.75 11.714 168.65 12.291 170.053 12.666C171.059 12.933 172.416 12.99 172.416 12.99V9.153C171.941 9.205 170.976 9.055 169.987 8.563" fill="black" fill-opacity="0.35"></path>
+<g clip-path="url(#svg1132083393_4035_clip0_71_487)">
+<mask id="svg1132083393_4035_mask0_71_487" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="260" y="3" width="25" height="24">
+<path d="M260.333 3H284.333V27H260.333V3Z" fill="white"></path>
+</mask>
+<g mask="url(#svg1132083393_4035_mask0_71_487)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M260.333 15.067C260.333 21.034 264.666 25.994 270.333 27V18.333H267.333V15H270.333V12.333C270.333 9.333 272.266 7.667 275 7.667C275.866 7.667 276.8 7.8 277.666 7.933V11H276.133C274.666 11 274.333 11.733 274.333 12.667V15H277.533L277 18.333H274.333V27C280 25.994 284.333 21.034 284.333 15.067C284.333 8.43 278.933 3 272.333 3C265.733 3 260.333 8.43 260.333 15.067Z" fill="black" fill-opacity="0.35"></path>
+</g>
+</g>
+<path d="M397.577 8.6748C397.428 8.11828 397.135 7.61076 396.728 7.20303C396.32 6.79531 395.813 6.5017 395.257 6.35156C393.209 5.80078 385 5.80078 385 5.80078C385 5.80078 376.791 5.80078 374.743 6.34863C374.187 6.49828 373.679 6.79173 373.272 7.19953C372.865 7.60733 372.572 8.11511 372.423 8.67188C371.875 10.7227 371.875 15 371.875 15C371.875 15 371.875 19.2773 372.423 21.3252C372.725 22.4561 373.615 23.3467 374.743 23.6484C376.791 24.1992 385 24.1992 385 24.1992C385 24.1992 393.209 24.1992 395.257 23.6484C396.388 23.3467 397.275 22.4561 397.577 21.3252C398.125 19.2773 398.125 15 398.125 15C398.125 15 398.125 10.7227 397.577 8.6748ZM382.393 18.9258V11.0742L389.189 14.9707L382.393 18.9258Z" fill="black" fill-opacity="0.35"></path>
+<defs>
+<clipPath id="svg1132083393_4035_clip0_71_487">
+<rect width="24" height="24" fill="white" transform="translate(260.333 3)"></rect>
+</clipPath>
+</defs>
+</svg><svg width="25" height="25" viewBox="0 0 25 25" fill="none" id="svg-217157422_882">
+<path d="M15.625 22.9843V17.776C15.625 16.9472 15.2958 16.1524 14.7098 15.5663C14.1237 14.9803 13.3288 14.651 12.5 14.651C11.6712 14.651 10.8764 14.9803 10.2903 15.5663C9.70428 16.1524 9.37504 16.9472 9.37504 17.776V22.9843H4.16671C3.61417 22.9843 3.08427 22.7649 2.69357 22.3742C2.30287 21.9835 2.08337 21.4535 2.08337 20.901V9.58018C2.08337 9.22042 2.17653 8.86678 2.35378 8.55372C2.53104 8.24065 2.78634 7.97882 3.09483 7.79372L11.4282 2.79372C11.752 2.59945 12.1224 2.49683 12.5 2.49683C12.8776 2.49683 13.2481 2.59945 13.5719 2.79372L21.9053 7.79372C22.2137 7.97882 22.469 8.24065 22.6463 8.55372C22.8236 8.86678 22.9167 9.22042 22.9167 9.58018V20.901C22.9167 21.4535 22.6972 21.9835 22.3065 22.3742C21.9158 22.7649 21.3859 22.9843 20.8334 22.9843H15.625Z" fill="#1B703A"></path>
+</svg><svg width="25" height="25" viewBox="0 0 25 25" fill="none" id="svg-1519384940_1015">
+<path d="M10.4167 2.08337C8.20657 2.08337 6.08695 2.96135 4.52415 4.52415C2.96135 6.08695 2.08337 8.20657 2.08337 10.4167C2.08337 12.6268 2.96135 14.7465 4.52415 16.3093C6.08695 17.8721 8.20657 18.75 10.4167 18.75C12.6268 18.75 14.7465 17.8721 16.3093 16.3093C17.8721 14.7465 18.75 12.6268 18.75 10.4167C18.75 8.20657 17.8721 6.08695 16.3093 4.52415C14.7465 2.96135 12.6268 2.08337 10.4167 2.08337Z" fill="#1B703A"></path>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M22.6115 22.6115C22.4161 22.8068 22.1512 22.9165 21.875 22.9165C21.5988 22.9165 21.3339 22.8068 21.1386 22.6115L17.4927 18.9656C17.303 18.7692 17.198 18.5061 17.2004 18.2329C17.2027 17.9598 17.3123 17.6985 17.5054 17.5054C17.6985 17.3123 17.9598 17.2027 18.2329 17.2004C18.5061 17.198 18.7692 17.303 18.9656 17.4927L22.6115 21.1386C22.8068 21.3339 22.9165 21.5988 22.9165 21.875C22.9165 22.1512 22.8068 22.4161 22.6115 22.6115Z" fill="#1B703A"></path>
+</svg><svg width="25" height="25" viewBox="0 0 25 25" fill="none" id="svg613529258_1842">
+<path d="M22.4855 6.05331C22.0751 4.89625 21.1625 3.9837 20.0055 3.56454C18.9532 3.2196 17.9839 3.2196 16.006 3.2196H10.0722C8.11615 3.2196 7.1381 3.2196 6.08584 3.54707C4.92878 3.96624 4.01623 4.87878 3.59707 6.03584C3.26086 7.09685 3.26086 8.07489 3.26086 10.0397V15.9604C3.26086 17.9339 3.26086 18.9032 3.58833 19.9555C4.0075 21.1125 4.92004 22.0251 6.0771 22.4443C7.1381 22.7805 8.11615 22.7805 10.0766 22.7805H16.0016C17.9664 22.7805 18.9445 22.7805 20.0011 22.4443C21.1582 22.0251 22.0707 21.1125 22.4899 19.9555C22.8261 18.8945 22.8261 17.9164 22.8261 15.9604V10.0441C22.8261 8.07926 22.8261 7.10121 22.4899 6.04894L22.4855 6.05331ZM17.3683 9.91745L16.2418 10.8387C16.1413 10.9217 16.0016 10.9042 15.923 10.7994C15.3467 10.0921 14.4516 9.69041 13.4736 9.69041C12.382 9.69041 11.7008 10.1663 11.7008 10.8344C11.6834 11.3932 12.2117 11.6902 13.8447 12.0438C15.9056 12.4804 16.8443 13.3406 16.8443 14.7815C16.8443 16.5891 15.3729 17.9208 13.0719 18.0693L12.8492 19.139C12.8317 19.2394 12.7357 19.318 12.6265 19.318H10.8538C10.7053 19.318 10.6006 19.1783 10.6311 19.0386L10.9106 17.8466C9.77533 17.5191 8.84968 16.886 8.32136 16.1132C8.25587 16.0128 8.27333 15.8818 8.36939 15.8075L9.60068 14.847C9.7011 14.764 9.85392 14.7902 9.92815 14.895C10.5787 15.8075 11.5873 16.349 12.7968 16.349C13.8883 16.349 14.7092 15.8163 14.7092 15.0522C14.7092 14.4671 14.2988 14.1964 12.9103 13.9082C10.5438 13.3974 9.60068 12.5197 9.60068 11.0745C9.60068 9.39787 11.0066 8.14038 13.133 7.97446L13.3644 6.86543C13.3819 6.76501 13.4779 6.68642 13.5871 6.68642H15.3292C15.4689 6.68642 15.5825 6.81741 15.5519 6.95713L15.2812 8.19714C16.1937 8.47658 16.9404 8.9787 17.4076 9.60308C17.4818 9.69477 17.4643 9.83449 17.3683 9.90872V9.91745Z" fill="#1B703A"></path>
+</svg><svg width="25" height="25" viewBox="0 0 25 25" fill="none" id="svg-601931097_392">
+<path d="M8 7.21053C8 10.0833 10.2433 12.4211 13 12.4211C15.7567 12.4211 18 10.0833 18 7.21053C18 4.33779 15.7567 2 13 2C10.2433 2 8 4.33779 8 7.21053ZM21.8889 24H23V22.8421C23 18.3738 19.51 14.7368 15.2222 14.7368H10.7778C6.48889 14.7368 3 18.3738 3 22.8421V24H21.8889Z" fill="#1B703A"></path>
+</svg></div></body></html>

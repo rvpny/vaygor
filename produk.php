@@ -1,4 +1,5 @@
 ﻿<?php
+require_once __DIR__ . '/config/helpers.php';
 $pageTitle = 'Lapangan Pancuranmas - VAYGOR';
 $hideBottomNav = true;
 require __DIR__ . '/includes/head.php';

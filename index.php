@@ -1,4 +1,7 @@
-﻿<?php require __DIR__ . '/includes/head.php'; ?>
+﻿<?php
+require_once __DIR__ . '/config/helpers.php';
+require __DIR__ . '/includes/head.php';
+?>
 
 <div class="site">
 

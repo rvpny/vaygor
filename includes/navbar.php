@@ -1,3 +1,7 @@
+<?php
+$navUser    = current_user();
+$navAccount = $navUser ? ($navUser['role'] === 'admin' ? 'admin/index.php' : 'user/index.php') : 'auth/login.php';
+?>
 <nav class="navbar">
   <a href="index.php" class="nav-logo">
     <span>V</span><span>A</span><span>Y</span><span>G</span>
@@ -6,7 +10,7 @@
     </div>
     <span>R</span>
   </a>
-  <div class="nav-icon" aria-hidden="true">
+  <a class="nav-icon" href="<?= e($navAccount) ?>" aria-label="Akun">
     <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-  </div>
+  </a>
 </nav>

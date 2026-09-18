@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿<?php
+require_once __DIR__ . '/config/helpers.php';
+$navUser     = current_user();
+$navAccount  = $navUser ? ($navUser['role'] === 'admin' ? 'admin/index.php' : 'user/index.php') : 'auth/login.php';
+$profileHref = $navAccount;
+?><!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -495,9 +500,9 @@
       </div>
       <span>R</span>
     </a>
-    <div class="nav-icon">
+    <a class="nav-icon" href="<?= e($navAccount) ?>" aria-label="Akun">
       <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
-    </div>
+    </a>
   </nav>
 
   <!-- Hero Gradient -->
@@ -598,7 +603,7 @@
       <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
       <span>Order</span>
     </a>
-    <a class="bottom-bar-item" href="#">
+    <a class="bottom-bar-item" href="<?= e($profileHref) ?>">
       <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       <span>Profile</span>
     </a>

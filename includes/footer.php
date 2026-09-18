@@ -1,5 +1,9 @@
 <!-- Bottom Bar -->
 <?php if (empty($hideBottomNav)): ?>
+<?php
+$footerUser = current_user();
+$profileHref = $footerUser ? ($footerUser['role'] === 'admin' ? 'admin/index.php' : 'user/index.php') : 'auth/login.php';
+?>
 <nav class="bottom-bar">
   <a class="bottom-bar-item active" href="index.php">
     <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -13,7 +17,7 @@
     <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7zm4-3h2v10h-2zm4 6h2v4h-2z"/></svg>
     <span>Order</span>
   </a>
-  <a class="bottom-bar-item" href="#">
+  <a class="bottom-bar-item" href="<?= e($profileHref) ?>">
     <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
     <span>Profile</span>
   </a>

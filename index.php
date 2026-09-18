@@ -55,7 +55,13 @@ $_SESSION['status'] = !empty($id);
 
   include 'includes/navbar.php';
   $p = $_GET['p'] ?? 'beranda';
-  include 'pages/' . $p . '.php';
+  $dir = 'pages/' . $p . '.php';
+  if(file_exists($dir)) {
+    include 'pages/' . $p . '.php';
+  }else {
+    $p = '404';
+    include 'pages/' . $p . '.php';
+  }
   ?>
 
 </body>

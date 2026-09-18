@@ -2,30 +2,54 @@
 include __DIR__ . '/database/konfig.php';
 session_start();
 $id = $_SESSION['id'] ?? '';
-
-if (!empty($id)) {
-  $_SESSION['status'] = true;
-} else {
-  $_SESSION['status'] = false;
-}
+$_SESSION['status'] = !empty($id);
 ?>
 <!doctype html>
-<html>
+<html lang="id">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAYGOR - Rent. Play. Win</title>
+  <link rel="icon" href="assets/images/icon(1).svg">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet"> -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style type="text/tailwindcss">
+    @theme {
+      --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+      --font-spartan: "League Spartan", sans-serif;
+
+      --color-vaygor-50: #eef7f0;
+      --color-vaygor-100: #d6eedd;
+      --color-vaygor-200: #b0dcc0;
+      --color-vaygor-300: #82c49c;
+      --color-vaygor-400: #4fa673;
+      --color-vaygor-500: #2f8c58;
+      --color-vaygor-600: #1b703a;
+      --color-vaygor-700: #16582f;
+      --color-vaygor-800: #124726;
+      --color-vaygor-900: #0e3a1f;
+      --color-vaygor-950: #062211;
+      --color-neon: #b6f500;
+      --color-cream: #fff4c7;
+    }
+
+    @layer base {
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        @apply bg-[#F6F8F5] text-gray-900 antialiased;
+      }
+    }
+  </style>
 </head>
 
-
-<body>
+<body class="font-sans">
 
   <?php
 
@@ -34,20 +58,6 @@ if (!empty($id)) {
   include 'pages/' . $p . '.php';
   ?>
 
-
-
-
-  <!-- <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <script>
-        AOS.init({
-            duration: 700,
-            easing: 'ease-out-cubic',
-            once: true,
-            offset: 80
-        });
-    </script> -->
 </body>
-
 
 </html>

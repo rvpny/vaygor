@@ -1,35 +1,23 @@
-<nav class="absolute top-0 z-50 flex h-20 items-center w-full px-8 lg:px-35 flex">
-
-    <a href="#" class="font-inter text-2xl font-extrabold tracking-tight text-gray-950">
-        <img src="assets/images/logo(1).svg" class="w-30" alt="">
+<?php $isLoggedIn = !empty($_SESSION['id']); ?>
+<nav class="absolute top-0 z-50 flex h-16 sm:h-20 items-center w-full px-6 sm:px-8 lg:px-12 xl:px-20 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-zinc-100">
+    <a href="index.php" class="inline-flex items-center gap-2 font-spartan text-xl font-extrabold tracking-tight text-vaygor-600">
+        <img src="assets/images/logo(1).svg" class="h-7 w-auto" alt="VAYGOR">
+        <span class="hidden sm:inline">VAYGOR</span>
     </a>
 
-    <div class="flex gap-8 ml-auto text-gray-600 hidden sm:flex">
-        <a href="#" class="font-inter text-sm font-medium text-gray-700 hover:text-vaygor-600">
-            Lapangan
-        </a>
-
-        <a href="#" class="font-inter text-sm font-medium text-gray-700 hover:text-vaygor-600">
-            Venue
-        </a>
-
-        <a href="#" class="font-inter text-sm font-medium text-gray-700 hover:text-vaygor-600">
-            Promo
-        </a>
-
-        <a href="#" class="font-inter text-sm font-medium text-gray-700 hover:text-vaygor-600">
-            Cara Booking
-        </a>
+    <div class="hidden sm:flex gap-6 ml-auto items-center">
+        <a href="index.php?p=browse" class="font-inter text-sm font-medium text-zinc-700 hover:text-vaygor-600">Lapangan</a>
+        <a href="index.php?p=produk" class="font-inter text-sm font-medium text-zinc-700 hover:text-vaygor-600">Venue</a>
+        <a href="index.php?p=beranda" class="font-inter text-sm font-medium text-zinc-700 hover:text-vaygor-600">Cara Booking</a>
     </div>
 
-    <div class="flex items-center gap-3">
-        <button class="hidden font-inter text-sm font-semibold text-gray-800 sm:block">
-            Login
-        </button>
-
-        <button class="rounded-xl bg-vaygor-500 px-5 py-3 font-inter text-sm font-bold text-white transition hover:bg-vaygor-600">
-            Book Now
-        </button>
+    <div class="flex items-center gap-2 sm:gap-3 ml-auto sm:ml-6">
+        <?php if ($isLoggedIn): ?>
+          <a href="index.php?p=pesanan" class="hidden sm:inline-flex rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 hover:bg-zinc-50">Pesanan</a>
+          <a href="logout.php" class="inline-flex rounded-xl bg-zinc-900 px-4 sm:px-5 py-2.5 sm:py-3 text-sm font-bold text-white hover:bg-black">Keluar</a>
+        <?php else: ?>
+          <a href="login.php" class="hidden sm:inline-flex rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 hover:bg-zinc-50">Masuk</a>
+          <a href="index.php?p=browse" class="inline-flex rounded-xl bg-vaygor-600 px-4 sm:px-5 py-2.5 sm:py-3 text-sm font-bold text-white hover:bg-vaygor-700">Booking Lapangan</a>
+        <?php endif; ?>
     </div>
-
 </nav>

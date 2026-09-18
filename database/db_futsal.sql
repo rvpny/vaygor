@@ -77,7 +77,9 @@ CREATE TABLE `fields` (
 --
 
 INSERT INTO `fields` (`id`, `name`, `location`, `description`, `field_type`, `surface`, `capacity`, `price_per_hour`, `status`, `image`, `created_at`, `updated_at`) VALUES
-(1, 'Lapangan Pancuranmas', 'Kota Magelang, Jawa Tengah', 'Lapangan futsal yang dapat digunakan untuk latihan, pertandingan, dan kegiatan olahraga.', 'indoor', 'Vinyl', 10, 15000.00, 'available', 'pancuranmas.jpg', '2026-09-17 13:59:34', '2026-09-17 13:59:34');
+(1, 'Lapangan Pancuranmas', 'Kota Magelang, Jawa Tengah', 'Lapangan futsal yang dapat digunakan untuk latihan, pertandingan, dan kegiatan olahraga.', 'indoor', 'Vinyl', 10, 15000.00, 'available', 'pancuranmas.jpg', '2026-09-17 13:59:34', '2026-09-17 13:59:34'),
+(2, 'Lapangan Merdeka Outdoor', 'Kota Magelang, Jawa Tengah', 'Lapangan outdoor rumput sintetis, cocok untuk sparing sore.', 'outdoor', 'Rumput Sintetis', 12, 20000.00, 'available', NULL, '2026-09-18 10:00:00', '2026-09-18 10:00:00'),
+(3, 'Lapangan Tidar Futsal', 'Magelang Utara, Jawa Tengah', 'Lapangan indoor vinyl dengan lampu terang.', 'indoor', 'Vinyl', 10, 25000.00, 'available', NULL, '2026-09-18 10:00:00', '2026-09-18 10:00:00');
 
 -- --------------------------------------------------------
 
@@ -104,7 +106,21 @@ INSERT INTO `field_schedules` (`id`, `field_id`, `day_of_week`, `open_time`, `cl
 (4, 1, 'Thursday', '08:00:00', '22:00:00'),
 (5, 1, 'Friday', '08:00:00', '22:00:00'),
 (6, 1, 'Saturday', '08:00:00', '23:00:00'),
-(7, 1, 'Sunday', '08:00:00', '23:00:00');
+(7, 1, 'Sunday', '08:00:00', '23:00:00'),
+(8, 2, 'Monday', '08:00:00', '22:00:00'),
+(9, 2, 'Tuesday', '08:00:00', '22:00:00'),
+(10, 2, 'Wednesday', '08:00:00', '22:00:00'),
+(11, 2, 'Thursday', '08:00:00', '22:00:00'),
+(12, 2, 'Friday', '08:00:00', '22:00:00'),
+(13, 2, 'Saturday', '08:00:00', '23:00:00'),
+(14, 2, 'Sunday', '08:00:00', '23:00:00'),
+(15, 3, 'Monday', '08:00:00', '22:00:00'),
+(16, 3, 'Tuesday', '08:00:00', '22:00:00'),
+(17, 3, 'Wednesday', '08:00:00', '22:00:00'),
+(18, 3, 'Thursday', '08:00:00', '22:00:00'),
+(19, 3, 'Friday', '08:00:00', '22:00:00'),
+(20, 3, 'Saturday', '08:00:00', '23:00:00'),
+(21, 3, 'Sunday', '08:00:00', '23:00:00');
 
 -- --------------------------------------------------------
 
@@ -154,8 +170,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password`, `role`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Administrator', 'admin@futsalmagelang.com', '081234567890', '$2y$10$REPLACE_DENGAN_PASSWORD_HASH', 'admin', 'active', '2026-09-17 13:59:34', '2026-09-17 13:59:34'),
-(2, 'Rava Prayoga', 'rava@example.com', '081234567891', '$2y$10$REPLACE_DENGAN_PASSWORD_HASH', 'user', 'active', '2026-09-17 13:59:34', '2026-09-17 13:59:34');
+(1, 'Administrator', 'admin@futsalmagelang.com', '081234567890', '$2y$12$6GuOivcIDdah4BDeb9J7oOW1nLb6xfER9JXUR8rILTeKEYz2V.OaG', 'admin', 'active', '2026-09-17 13:59:34', '2026-09-17 13:59:34'),
+(2, 'Rava Prayoga', 'rava@example.com', '081234567891', '$2y$12$Zsod291NZRvtSIVPzhCzc.dkmrmsPc/F/q1eP863BCyrAUM6WYaQK', 'user', 'active', '2026-09-17 13:59:34', '2026-09-17 13:59:34');
 
 --
 -- Indexes for dumped tables
@@ -211,13 +227,13 @@ ALTER TABLE `bookings`
 -- AUTO_INCREMENT for table `fields`
 --
 ALTER TABLE `fields`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `field_schedules`
 --
 ALTER TABLE `field_schedules`
-  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `payments`

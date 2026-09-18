@@ -6,3 +6,6 @@
 .playwright-mcp/
 playwright-report/
 test-results/
+# Uploads
+assets/uploads/bukti/*
+!assets/uploads/bukti/.gitkeep

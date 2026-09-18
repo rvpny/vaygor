@@ -1,0 +1,8 @@
+# Environment
+.env
+*.log
+
+# Playwright
+.playwright-mcp/
+playwright-report/
+test-results/

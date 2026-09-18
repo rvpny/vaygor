@@ -1,0 +1,149 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - img "Futsal" [ref=e4]
+    - navigation [ref=e6]:
+      - link "V A Y G R" [ref=e7] [cursor=pointer]:
+        - /url: index.php
+        - generic [ref=e8]: V
+        - generic [ref=e9]: A
+        - generic [ref=e10]: "Y"
+        - generic [ref=e11]: G
+        - generic [ref=e15]: R
+      - generic [aria-hidden] [ref=e16] [cursor=pointer]
+    - generic [ref=e19]:
+      - heading "Are You Winning Soon" [level=1] [ref=e20]: Are YouWinning Soon
+      - paragraph [ref=e21]: Best place to book sports field for you
+  - generic [ref=e22]:
+    - heading "Find Venue" [level=2] [ref=e23]
+    - generic [ref=e24]:
+      - textbox "Search by name or location" [ref=e28]
+      - generic [ref=e29]:
+        - combobox "Sports Type" [ref=e31] [cursor=pointer]:
+          - option "Sports Type" [selected]
+          - option "Futsal"
+          - option "Sepak Bola"
+          - option "Bulutangkis"
+          - option "Basket"
+          - option "Voli"
+        - textbox "Date & Time" [ref=e35]
+      - button "Search" [ref=e36] [cursor=pointer]
+  - generic [ref=e38]:
+    - generic [ref=e39]:
+      - heading "Trending in Magelang" [level=2] [ref=e40]
+      - img [ref=e41] [cursor=pointer]
+    - paragraph [ref=e43]: Check trending sport fields near your area, you can modify the result by choosing more options that suitable for you.
+    - generic [ref=e44]:
+      - article [ref=e45]:
+        - img "Lapangan Pancuranmas" [ref=e46]
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - generic [ref=e49]: Futsal
+            - generic [ref=e50]: ·Magelang
+            - generic [ref=e51]: ·Indoor
+          - generic [ref=e52]: Lapangan Pancuranmas
+          - generic [ref=e53]: 25 Reviews
+          - generic [ref=e66]: RP. 15,000/jam
+      - article [ref=e67]:
+        - img "Lapangan Pancuranmas" [ref=e68]
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - generic [ref=e71]: Futsal
+            - generic [ref=e72]: ·Magelang
+            - generic [ref=e73]: ·Indoor
+          - generic [ref=e74]: Lapangan Pancuranmas
+          - generic [ref=e75]: 25 Reviews
+          - generic [ref=e88]: RP. 15,000/jam
+  - generic [ref=e89]:
+    - generic [ref=e90]:
+      - heading "Sports Type" [level=2] [ref=e91]
+      - img [ref=e92] [cursor=pointer]
+    - generic [ref=e94]:
+      - button "Futsal Futsal" [ref=e95] [cursor=pointer]:
+        - img "Futsal" [ref=e97]
+        - generic [ref=e98]: Futsal
+      - button "Sepak Bola Sepak Bola" [ref=e99] [cursor=pointer]:
+        - img "Sepak Bola" [ref=e101]
+        - generic [ref=e102]: Sepak Bola
+      - button "Badminton" [ref=e103] [cursor=pointer]
+      - button "Basket" [ref=e106] [cursor=pointer]
+      - button "Voli" [ref=e109] [cursor=pointer]
+  - generic [ref=e112]:
+    - generic [ref=e113]:
+      - heading "Last Booked" [level=2] [ref=e114]
+      - img [ref=e115] [cursor=pointer]
+    - article [ref=e117]:
+      - img "Lapangan Pancuranmas" [ref=e118]
+      - generic [ref=e119]:
+        - generic [ref=e120]:
+          - generic [ref=e121]: Football
+          - generic [ref=e122]: ·Magelang
+          - generic [ref=e123]: ·Indoor
+        - generic [ref=e124]: Lapangan Pancuranmas
+        - generic [ref=e125]: 25 Reviews
+        - generic [ref=e138]: RP. 15,000/jam
+  - generic [ref=e139]:
+    - generic [ref=e140]:
+      - heading "Browse" [level=2] [ref=e141]
+      - img [ref=e142] [cursor=pointer]
+    - generic [ref=e144]: GET YOUR ARSE MOVIN
+    - article [ref=e148]:
+      - img "Lapangan Pancuranmas" [ref=e149]
+      - generic [ref=e150]:
+        - generic [ref=e151]:
+          - generic [ref=e152]: Futsal
+          - generic [ref=e153]: ·Magelang
+          - generic [ref=e154]: ·Indoor
+        - generic [ref=e155]: Lapangan Pancuranmas
+        - generic [ref=e156]: 25 Reviews
+        - generic [ref=e169]: RP. 15,000/jam
+  - navigation [ref=e170]:
+    - link "Home" [ref=e171] [cursor=pointer]:
+      - /url: index.php
+    - link "Browse" [ref=e175] [cursor=pointer]:
+      - /url: browse.php
+    - link "Order" [ref=e179] [cursor=pointer]:
+      - /url: "#"
+    - link "Profile" [ref=e183] [cursor=pointer]:
+      - /url: "#"
+  - contentinfo [ref=e187]:
+    - generic [ref=e188]:
+      - generic [ref=e189]: V
+      - generic [ref=e190]: A
+      - generic [ref=e191]: "Y"
+      - generic [ref=e192]: G
+      - generic [ref=e196]: R
+    - generic [ref=e197]: PT YPCTY
+    - generic [ref=e198]: Jl. Ahmad Yani, Kajoran Tengah, Tel Aviv, Israel City, Israel
+    - generic [ref=e199]:
+      - link "Twitter" [ref=e200] [cursor=pointer]:
+        - /url: "#"
+      - link "Instagram" [ref=e203] [cursor=pointer]:
+        - /url: "#"
+      - link "Facebook" [ref=e206] [cursor=pointer]:
+        - /url: "#"
+    - generic [ref=e209]:
+      - generic [ref=e210]:
+        - heading "Tentang Kami" [level=4] [ref=e211]
+        - list [ref=e212]:
+          - listitem [ref=e213] [cursor=pointer]: Informasi
+          - listitem [ref=e214] [cursor=pointer]: Kebijakan & Privasi
+          - listitem [ref=e215] [cursor=pointer]: Syarat dan Ketentuan
+      - generic [ref=e216]:
+        - heading "Kontak" [level=4] [ref=e217]
+        - list [ref=e218]:
+          - listitem [ref=e219] [cursor=pointer]: rvpryg@hotmail
+          - listitem [ref=e220] [cursor=pointer]: "+6256787881"
+          - listitem [ref=e221] [cursor=pointer]: Social Media
+      - generic [ref=e222]:
+        - heading "Ekosistem" [level=4] [ref=e223]
+        - list [ref=e224]:
+          - listitem [ref=e225] [cursor=pointer]: Hosting server
+          - listitem [ref=e226] [cursor=pointer]: Afiliasi
+          - listitem [ref=e227] [cursor=pointer]: Perlindungan
+      - generic [ref=e228]:
+        - heading "Dukungan" [level=4] [ref=e229]
+        - list [ref=e230]:
+          - listitem [ref=e231] [cursor=pointer]: Pusat bantuan
+          - listitem [ref=e232] [cursor=pointer]: Dokumentasi
+          - listitem [ref=e233] [cursor=pointer]: Daftarkan Akun
+    - generic [ref=e234]: © 2026 YPLOVRV Indonesia All Right Reserved

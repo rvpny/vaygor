@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 $navLoggedIn = !empty($_SESSION['id']);
 $navRole    = $_SESSION['role'] ?? '';
 $navName    = $_SESSION['name'] ?? '';
+$navSolid   = !empty($navForceSolid); // halaman tanpa hero gelap → navbar solid sejak awal
 
 if ($navLoggedIn && !$navName) {
     $navConn = $GLOBALS['conn'] ?? null;
@@ -20,20 +21,20 @@ $navInitial = $navName ? mb_strtoupper(mb_substr(trim($navName), 0, 1)) : 'V';
 $navIsAdmin = $navLoggedIn && $navRole === 'admin';
 ?>
 
-<nav class="absolute inset-x-0 top-0 z-50">
+<nav id="siteNav" data-force="<?= $navSolid ? '1' : '0' ?>" class="fixed inset-x-0 top-0 z-50 <?= $navSolid ? 'scrolled' : '' ?>">
   <div class="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-10">
 
     <!-- Logo -->
     <a href="index.php" class="flex items-center">
-      <img src="assets/images/logo(1).svg" class="h-5 w-auto sm:h-6" alt="VAYGOR">
+      <img id="navLogo" src="assets/images/logo(1).svg" class="h-5 w-auto sm:h-6" alt="VAYGOR">
     </a>
 
     <!-- Desktop links -->
     <div class="hidden items-center gap-9 lg:flex">
-      <a href="index.php" class="text-sm font-medium text-white/85 transition hover:text-neon">Beranda</a>
-      <a href="index.php?p=browse" class="text-sm font-medium text-white/85 transition hover:text-neon">Lapangan</a>
-      <a href="index.php#venue" class="text-sm font-medium text-white/85 transition hover:text-neon">Venue</a>
-      <a href="index.php#cara" class="text-sm font-medium text-white/85 transition hover:text-neon">Cara Booking</a>
+      <a href="index.php" class="nav-link">Beranda</a>
+      <a href="index.php?p=browse" class="nav-link">Lapangan</a>
+      <a href="index.php#venue" class="nav-link">Venue</a>
+      <a href="index.php#cara" class="nav-link">Cara Booking</a>
     </div>
 
     <!-- Desktop auth area -->
@@ -41,24 +42,20 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
 
       <?php if (!$navLoggedIn): ?>
 
-        <a href="login.php" class="text-sm font-semibold text-white transition hover:text-neon">Masuk</a>
+        <a href="login.php" class="nav-link">Masuk</a>
         <a href="index.php?p=browse" class="rounded-xl bg-neon px-6 py-3 text-sm font-bold text-vaygor-950 shadow-lg shadow-black/20 transition hover:scale-[1.03] hover:bg-white">Book Now</a>
 
       <?php else: ?>
 
         <?php if ($navIsAdmin): ?>
-          <a href="#" class="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/30 backdrop-blur transition hover:bg-white/20">
-            Dashboard
-          </a>
+          <a href="#" class="admin-pill">Dashboard</a>
         <?php endif; ?>
 
-        <a href="index.php?p=browse" class="rounded-xl bg-neon px-6 py-3 text-sm font-bold text-vaygor-950 shadow-lg shadow-black/20 transition hover:scale-[1.03] hover:bg-white">Book Now</a>
-
         <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neon text-sm font-extrabold text-vaygor-950 ring-2 ring-white/40"><?= $navInitial; ?></div>
+          <div class="nav-avatar flex h-10 w-10 items-center justify-center rounded-full bg-neon text-sm font-extrabold text-vaygor-950 ring-2 ring-white/40"><?= $navInitial; ?></div>
           <div class="leading-tight">
-            <p class="max-w-[10rem] truncate text-sm font-bold text-white"><?= htmlspecialchars($navName); ?></p>
-            <a href="logout.php" class="text-xs font-medium text-white/70 transition hover:text-neon">Keluar</a>
+            <p class="nav-name max-w-[10rem] truncate text-sm font-bold"><?= htmlspecialchars($navName); ?></p>
+            <a href="logout.php" class="nav-logout text-xs font-medium">Keluar</a>
           </div>
         </div>
 
@@ -67,11 +64,11 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
     </div>
 
     <!-- Mobile burger -->
-    <button id="menuBtn" type="button" aria-label="Menu" class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/20 lg:hidden">
-      <svg id="iconBars" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <button id="menuBtn" type="button" aria-label="Menu" class="nav-burger flex h-11 w-11 items-center justify-center rounded-xl transition hover:bg-white/20 lg:hidden">
+      <svg id="iconBars" class="nav-icon h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M4 6h16M4 12h16M4 18h16" />
       </svg>
-      <svg id="iconClose" class="hidden h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <svg id="iconClose" class="nav-icon hidden h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M6 6l12 12M18 6L6 18" />
       </svg>
     </button>
@@ -117,18 +114,85 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
   </div>
 </nav>
 
+<style>
+  #siteNav {
+    background: transparent;
+    transition: background-color .3s ease, box-shadow .3s ease;
+  }
+  #siteNav .nav-link {
+    color: rgba(255, 255, 255, .85);
+    transition: color .25s ease;
+  }
+  #siteNav .nav-link:hover { color: #b6f500; }
+  #siteNav .nav-burger {
+    color: #fff;
+    background: rgba(255, 255, 255, .1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .25);
+  }
+  #siteNav .nav-burger:hover { background: rgba(255, 255, 255, .2); }
+  #siteNav .nav-name { color: #fff; }
+  #siteNav .nav-logout { color: rgba(255, 255, 255, .7); transition: color .25s ease; }
+  #siteNav .nav-logout:hover { color: #b6f500; }
+  #siteNav .admin-pill {
+    color: #fff;
+    background: rgba(255, 255, 255, .1);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3);
+  }
+  #siteNav .admin-pill:hover { background: rgba(255, 255, 255, .2); }
+
+  #siteNav.scrolled {
+    background: rgba(255, 255, 255, .92);
+    box-shadow: 0 6px 24px rgba(6, 34, 17, .08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  #siteNav.scrolled .nav-link { color: #124726; }
+  #siteNav.scrolled .nav-link:hover { color: #1b703a; }
+  #siteNav.scrolled #navLogo { filter: brightness(0) opacity(.85); }
+  #siteNav.scrolled .nav-burger {
+    color: #124726;
+    background: rgba(18, 71, 38, .06);
+    box-shadow: inset 0 0 0 1px rgba(18, 71, 38, .12);
+  }
+  #siteNav.scrolled .nav-burger:hover { background: rgba(18, 71, 38, .12); }
+  #siteNav.scrolled .nav-name { color: #0e3a1f; }
+  #siteNav.scrolled .nav-logout { color: #124726; }
+  #siteNav.scrolled .nav-logout:hover { color: #1b703a; }
+  #siteNav.scrolled .admin-pill {
+    color: #124726;
+    background: rgba(18, 71, 38, .06);
+    box-shadow: inset 0 0 0 1px rgba(18, 71, 38, .15);
+  }
+  #siteNav.scrolled .admin-pill:hover { background: rgba(18, 71, 38, .12); }
+</style>
+
 <script>
   (function () {
+    var nav = document.getElementById('siteNav');
     var btn = document.getElementById('menuBtn');
     var menu = document.getElementById('mobileMenu');
     var bars = document.getElementById('iconBars');
     var close = document.getElementById('iconClose');
-    if (!btn || !menu) return;
-    btn.addEventListener('click', function () {
-      var isOpen = !menu.classList.contains('hidden');
-      menu.classList.toggle('hidden', isOpen);
-      bars.classList.toggle('hidden', !isOpen);
-      close.classList.toggle('hidden', isOpen);
-    });
+
+    function onScroll() {
+      if (!nav) return;
+      if (nav.getAttribute('data-force') === '1') return;
+      if (window.scrollY > 24) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    if (btn && menu) {
+      btn.addEventListener('click', function () {
+        var isOpen = !menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', isOpen);
+        if (bars) bars.classList.toggle('hidden', !isOpen);
+        if (close) close.classList.toggle('hidden', isOpen);
+      });
+    }
   })();
 </script>

@@ -3,6 +3,23 @@ include __DIR__ . '/database/konfig.php';
 session_start();
 $id = $_SESSION['id'] ?? '';
 $_SESSION['status'] = !empty($id);
+
+$p = $_GET['p'] ?? 'beranda';
+$dir = 'pages/' . $p . '.php';
+
+// Halaman yang butuh login: cek sebelum ada output supaya redirect berfungsi.
+$protectedPages = ['booking'];
+if (in_array($p, $protectedPages, true) && empty($id)) {
+    $req = $_SERVER['REQUEST_URI'] ?? 'index.php';
+    header('Location: login.php?redirect=' . urlencode($req));
+    exit;
+}
+
+// Navbar: tembus pandang hanya di halaman yang punya hero gelap di atas (beranda & browse).
+$navForceSolid = !in_array($p, ['beranda', 'browse'], true);
+if (!file_exists($dir)) {
+    $p = '404';
+}
 ?>
 <!doctype html>
 <html lang="id">
@@ -11,7 +28,7 @@ $_SESSION['status'] = !empty($id);
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VAYGOR - Rent. Play. Win</title>
-  <link rel="icon" href="assets/images/icon(1).svg">
+  <link rel="icon" href="assets/images/logo(1).svg">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,10 +57,12 @@ $_SESSION['status'] = !empty($id);
     @layer base {
       html {
         scroll-behavior: smooth;
+        margin: 0;
+        padding: 0;
       }
 
       body {
-        @apply bg-[#F6F8F5] text-gray-900 antialiased;
+        @apply m-0 p-0 bg-[#F6F8F5] text-gray-900 antialiased;
       }
     }
   </style>
@@ -54,13 +73,13 @@ $_SESSION['status'] = !empty($id);
   <?php
 
   include 'includes/navbar.php';
-  $p = $_GET['p'] ?? 'beranda';
-  $dir = 'pages/' . $p . '.php';
-  if(file_exists($dir)) {
-    include 'pages/' . $p . '.php';
-  }else {
-    $p = '404';
-    include 'pages/' . $p . '.php';
+
+  if ($p === '404') {
+    echo '<div class="pt-28 pb-12 text-center"><h1 class="font-spartan text-4xl font-extrabold text-vaygor-700">404</h1><p class="mt-2 text-sm text-gray-500">Halaman tidak ditemukan.</p><a href="index.php" class="mt-6 inline-flex rounded-xl bg-vaygor-600 px-6 py-3 text-sm font-bold text-white hover:bg-vaygor-700">Kembali ke Beranda</a></div>';
+  } elseif (file_exists($dir)) {
+    include $dir;
+  } else {
+    include 'pages/beranda.php';
   }
   ?>
 

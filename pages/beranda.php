@@ -1,7 +1,7 @@
 <div class="pb-10">
 
   <!-- ═══════════ HERO ═══════════ -->
-  <section class="relative overflow-hidden bg-[linear-gradient(105deg,rgba(6,34,17,0.94)_0%,rgba(18,71,38,0.82)_48%,rgba(27,112,58,0.55)_100%),url('assets/images/3x12wclyJrsyLTLEdRiGAcsys.png')] bg-cover bg-center rounded-b-[20px] md:rounded-b-[30px] lg:rounded-b-[80px]">
+  <section class="relative overflow-hidden bg-[linear-gradient(105deg,rgba(6,34,17,0.94)_0%,rgba(18,71,38,0.82)_48%,rgba(27,112,58,0.55)_100%),url('assets/images/beranda.png')] bg-cover bg-center rounded-b-[20px] md:rounded-b-[30px] lg:rounded-b-[80px]">
     <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-vaygor-400/30 blur-3xl"></div>
     <div class="pointer-events-none absolute -right-20 top-40 h-64 w-64 rounded-full bg-neon/20 blur-3xl"></div>
 
@@ -63,11 +63,12 @@
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">Jenis Olahraga</label>
         <select name="jenis" class="w-full cursor-pointer appearance-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm text-gray-900 outline-none transition focus:border-vaygor-400 focus:bg-white focus:ring-2 focus:ring-vaygor-100">
           <option value="">Semua Olahraga</option>
-          <option value="futsal">Futsal</option>
-          <option value="badminton">Badminton</option>
-          <option value="basket">Basket</option>
-          <option value="voli">Voli</option>
-          <option value="tenis">Tenis</option>
+          <option value="1">Sepak Bola</option>
+          <option value="2">Futsal</option>
+          <option value="5">Badminton</option>
+          <option value="6">Basket</option>
+          <option value="7">Tenis</option>
+          <option value="8">Padel</option>
         </select>
       </div>
 
@@ -106,26 +107,24 @@
       </a>
     </div>
 
-    <div class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-      <?php
-      $kategori = [
-        ['Futsal', '8CzHO1rfZQpaf9XlsuzggTtEg.png', '12 venue'],
-        ['Badminton', 'vKBS9C3RJNkcYZLBU3IHvfLjv0_1.png', '18 venue'],
-        ['Basket', 'Idhhpvy8DpBdlOgVGky6B9XPPCg.png', '7 venue'],
-        ['Voli', '0CzrUdIITts0xeeGVC53q6AHgc.png', '9 venue'],
-        ['Tenis', 'wGrqDff8QHtt4PXzMsos8WVXJI_1.png', '6 venue'],
-      ];
-      foreach ($kategori as $k): ?>
-        <a href="index.php?p=browse" class="group relative h-52 overflow-hidden rounded-3xl ring-1 ring-black/5 transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-vaygor-900/20 sm:h-64">
-          <img src="assets/images/<?= $k[1]; ?>" alt="<?= $k[0]; ?>" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110">
-          <div class="absolute inset-0 bg-gradient-to-t from-vaygor-950/90 via-vaygor-950/10 to-transparent"></div>
-          <div class="absolute inset-x-0 bottom-0 p-4 sm:p-5">
-            <p class="font-spartan text-lg font-bold text-white sm:text-xl"><?= $k[0]; ?></p>
-            <p class="mt-0.5 text-xs font-medium text-white/70"><?= $k[2]; ?></p>
-          </div>
-        </a>
-      <?php endforeach; ?>
+    <div class="container mx-auto">
+
+      <div class="flex flex-row gap-5 overflow-x-auto p-4">
+        <?php
+        $qkat = mysqli_query($conn, "SELECT * FROM kategori ORDER BY name_kat DESC");
+
+        while ($k = mysqli_fetch_assoc($qkat)): ?>
+          <a href="index.php?p=browse&kat=<?= $k['id_kat']; ?>" class="group relative shrink-0 h-52 w-64 overflow-hidden rounded-3xl ring-1 ring-black/5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-vaygor-900/20 sm:w-72">
+            <img src="assets/images/<?= $k['logo_kat']; ?>" alt="<?= $k['name_kat']; ?>" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110">
+            <div class="absolute inset-0 bg-gradient-to-t from-vaygor-950/90 via-vaygor-950/10 to-transparent"></div>
+            <div class="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+              <p class="font-spartan text-lg font-bold text-white sm:text-xl"><?= $k['name_kat'] ?></p>
+            </div>
+          </a>
+        <?php endwhile; ?>
+      </div>
     </div>
+
   </section>
 
   <!-- ═══════════ VENUE POPULER ═══════════ -->
@@ -143,28 +142,73 @@
       </a>
     </div>
 
-    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <?php
-      $venues = [
-        ['Lapangan Pancuranmas', 'Magelang · Futsal', '15000', '8CzHO1rfZQpaf9XlsuzggTtEg.png', '4.9', '25'],
-        ['Lapangan Hvman', 'Magelang · Futsal', '150000', 'PhExImUwbpxAs1tNEBY2rU2rO5k.png', '5.0', '14'],
-        ['GOR Bahurekso', 'Magelang · Badminton', '40000', 'BI1q9FfyMAeVA3VVQYv2goJnig.png', '4.8', '31'],
-        ['Lapangan Agusify', 'Magelang · Futsal', '25000', 'wGrqDff8QHtt4PXzMsos8WVXJI_1.png', '4.7', '19'],
-      ];
-      foreach ($venues as $v): ?>
-        <a href="index.php?p=produk" class="group overflow-hidden rounded-3xl bg-white ring-1 ring-black/5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-vaygor-900/15">
+      $dir = 'assets/uploads/';
+      $qv = mysqli_query($conn, "
+    SELECT 
+        f.*,
+        (
+            SELECT k.name_kat
+            FROM fields_kat fk
+            JOIN kategori k ON k.id_Kat = fk.id_kat
+            WHERE fk.id_field = f.id
+            LIMIT 1
+        ) AS category,
+
+        ROUND(
+            AVG(
+                (b.rate_service + b.rate_comfort + b.rate_place) / 3
+            ), 1
+        ) AS rating,
+
+        (
+            SELECT COUNT(DISTINCT b.id) FROM bookings b
+            WHERE b.id_field = f.id 
+                AND b.rate_service > 0
+                AND b.rate_comfort > 0
+                AND b.rate_place > 0
+        ) AS total_rating
+
+        
+
+    FROM fields f
+
+    LEFT JOIN fields_kat fk 
+        ON fk.id_field = f.id
+
+    LEFT JOIN kategori k 
+        ON k.id_kat = fk.id_kat
+
+    LEFT JOIN bookings b 
+        ON b.id_field = f.id
+        AND b.rate_service > 0
+        AND b.rate_comfort > 0
+        AND b.rate_place > 0
+
+    GROUP BY f.id 
+    ORDER BY total_rating DESC
+    LIMIT 4
+");
+      while ($v = mysqli_fetch_assoc($qv)): ?>
+        <a href="index.php?p=produk&id=<?= $v['id']; ?>" class="group overflow-hidden rounded-3xl bg-white ring-1 ring-black/5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-vaygor-900/15">
           <div class="relative h-48 overflow-hidden">
-            <img src="assets/images/<?= $v[3]; ?>" alt="<?= $v[0]; ?>" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
-            <span class="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-vaygor-700 shadow backdrop-blur">Futsal</span>
+            <img src="<?= $dir . $v['image']; ?>" alt="<?= $v['name']; ?>" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
+
+            <span class="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-vaygor-700 shadow backdrop-blur <?= $v['category'] !== null ? '' : 'hidden'; ?>">
+              <?= htmlspecialchars($v['category']); ?>
+            </span>
           </div>
           <div class="p-5">
             <div class="flex items-center justify-between">
-              <p class="font-spartan text-lg font-bold text-gray-900"><?= $v[0]; ?></p>
+              <p class="font-spartan text-lg font-bold text-gray-900"><?= $v['name']; ?></p>
               <span class="flex items-center gap-1 text-xs font-semibold text-gray-500">
                 <svg class="h-3.5 w-3.5 fill-amber-400" viewBox="0 0 24 24">
                   <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                 </svg>
-                <?= $v[4]; ?> (<?= $v[5]; ?>)
+
+                <?= $v['total_rating'] > 0 ? $v['rating'] : '0'; ?>
+                (<?= $v['total_rating']; ?>)
               </span>
             </div>
             <p class="mt-1 flex items-center gap-1 text-xs text-gray-400">
@@ -172,15 +216,15 @@
                 <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0z" />
                 <circle cx="12" cy="10" r="3" />
               </svg>
-              <?= $v[1]; ?>
+              <?= $v['location']; ?>
             </p>
             <div class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-              <p class="text-sm text-gray-500">Mulai</p>
-              <p class="font-spartan text-lg font-extrabold text-vaygor-600">Rp <?= number_format((int) $v[3], 0, ',', '.'); ?><span class="text-xs font-medium text-gray-400">/jam</span></p>
+              <p class="font-spartan text-lg font-extrabold text-vaygor-600">Rp <?= number_format((int) $v['price'], 0, ',', '.'); ?><span class="text-xs font-medium text-gray-400">/jam</span></p>
+              <button type="button" class="flex items-center gap-1 rounded-full bg-vaygor-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-vaygor-700">Details</button>
             </div>
           </div>
         </a>
-      <?php endforeach; ?>
+      <?php endwhile; ?>
     </div>
   </section>
 
@@ -265,11 +309,11 @@
   <!-- ═══════════ CTA ═══════════ -->
   <section class="mx-auto mt-24 max-w-7xl px-5 sm:px-8 lg:px-10">
     <div class="relative overflow-hidden rounded-[2.5rem] bg-black px-8 py-16 text-center shadow-2xl sm:py-20">
-      <img src="assets/images/3x12wclyJrsyLTLEdRiGAcsys.png" alt="" class="absolute inset-0 h-full w-full object-cover opacity-40">
-      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-vaygor-950/60"></div>
+      <img src="assets/images/mini.webp" alt="" class="absolute inset-0 h-full w-full object-cover opacity-40">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-vaygor-950/60"></div>
 
       <div class="relative">
-        <p class="text-xs font-bold uppercase tracking-[0.3em] text-neon">Ready Player One?</p>
+        <p class="text-xs font-bold uppercase tracking-[0.3em] text-neon">Ready Team Player?</p>
         <h2 class="mx-auto mt-4 max-w-2xl font-spartan text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">SAATNYA KAMU KELUAR DAN BERTANDING</h2>
         <p class="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base">Jangan tunda lagi. Lapangan terbaik, harga pas, dan tim kamu sudah menunggu di dalam.</p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-4">

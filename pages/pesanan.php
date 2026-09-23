@@ -2,15 +2,36 @@
 if (empty($_SESSION['id'])) { header('Location: login.php'); exit; }
 $uid = (int)$_SESSION['id'];
 $msg = ''; $msgOk = false;
+
+// deteksi skema: lama = id_user / tanpa duration+payment_method+proof_image
+$isOldSchema = false;
+try {
+    $res = $conn->query("SELECT user_id FROM bookings LIMIT 1");
+    $res->fetch_row();
+    $res->free();
+} catch (Throwable $e) { $isOldSchema = true; }
+$hasProofCol = !$isOldSchema;
+if ($hasProofCol) {
+    try {
+        $res = $conn->query("SELECT proof_image FROM payments LIMIT 1");
+        $res->fetch_row();
+        $res->free();
+    } catch (Throwable $e) { $hasProofCol = false; }
+}
+
 if (isset($_POST['cancel_id'])) {
     $bid = (int)$_POST['cancel_id'];
     try {
-        $stmt = $conn->prepare("SELECT id, user_id, status FROM bookings WHERE id=? LIMIT 1");
+        if ($isOldSchema) {
+            $stmt = $conn->prepare("SELECT id, id_user AS uid, status FROM bookings WHERE id=? LIMIT 1");
+        } else {
+            $stmt = $conn->prepare("SELECT id, user_id AS uid, status FROM bookings WHERE id=? LIMIT 1");
+        }
         $stmt->bind_param("i", $bid);
         $stmt->execute();
         $b = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-        if (!$b || (int)$b['user_id'] !== $uid) $msg = 'Pesanan tidak ditemukan.';
+        if (!$b || (int)$b['uid'] !== $uid) $msg = 'Pesanan tidak ditemukan.';
         elseif ($b['status'] !== 'pending') $msg = 'Hanya pesanan pending yang bisa dibatalkan.';
         else {
             $stmt = $conn->prepare("UPDATE bookings SET status='cancelled' WHERE id=?");
@@ -22,14 +43,21 @@ if (isset($_POST['cancel_id'])) {
     } catch(Throwable $e) { $msg = 'Gagal membatalkan.'; }
 }
 if (isset($_POST['upload_id']) && isset($_FILES['proof'])) {
+    if (!$hasProofCol) {
+        $msg = 'Upload bukti belum tersedia di database ini.';
+    } else {
     $bid = (int)$_POST['upload_id'];
     try {
-        $stmt = $conn->prepare("SELECT b.id, b.user_id, b.status, p.payment_status, p.id AS pid FROM bookings b JOIN payments p ON p.booking_id=b.id WHERE b.id=? LIMIT 1");
+        if ($isOldSchema) {
+            $stmt = $conn->prepare("SELECT b.id, b.id_user AS uid, b.status, p.payment_status, p.id AS pid FROM bookings b JOIN payments p ON p.booking_id=b.id WHERE b.id=? LIMIT 1");
+        } else {
+            $stmt = $conn->prepare("SELECT b.id, b.user_id AS uid, b.status, p.payment_status, p.id AS pid FROM bookings b JOIN payments p ON p.booking_id=b.id WHERE b.id=? LIMIT 1");
+        }
         $stmt->bind_param("i", $bid);
         $stmt->execute();
         $b = $stmt->get_result()->fetch_assoc();
         $stmt->close();
-        if (!$b || (int)$b['user_id'] !== $uid) $msg = 'Pesanan tidak ditemukan.';
+        if (!$b || (int)$b['uid'] !== $uid) $msg = 'Pesanan tidak ditemukan.';
         elseif (!in_array($b['status'], ['pending','confirmed'], true) || $b['payment_status']==='paid') $msg = 'Bukti hanya untuk pesanan pending/confirmed yang belum lunas.';
         else {
             $f = $_FILES['proof'];
@@ -60,15 +88,30 @@ if (isset($_POST['upload_id']) && isset($_FILES['proof'])) {
             }
         }
     } catch(Throwable $e) { $msg = 'Gagal upload.'; }
+    }
 }
 $rows = [];
 try {
-    $stmt = $conn->prepare("SELECT b.id, b.booking_code, b.booking_date, b.start_time, b.end_time, b.duration, b.total_price, b.status, f.name AS venue_name, p.payment_method, p.payment_status, p.proof_image FROM bookings b JOIN fields f ON f.id=b.field_id LEFT JOIN payments p ON p.booking_id=b.id WHERE b.user_id=? ORDER BY b.created_at DESC LIMIT 20");
-    $stmt->bind_param("i", $uid);
-    $stmt->execute();
-    $res = $stmt->get_result();
-    while($r=$res->fetch_assoc()) $rows[]=$r;
-    $stmt->close();
+    if ($isOldSchema) {
+        $stmt = $conn->prepare("SELECT b.id, b.booking_code, b.booking_date, b.start_time, b.end_time, b.total_price, b.status, f.name AS venue_name, p.payment_status FROM bookings b JOIN fields f ON f.id=b.id_field LEFT JOIN payments p ON p.booking_id=b.id WHERE b.id_user=? ORDER BY b.id DESC LIMIT 20");
+        $stmt->bind_param("i", $uid);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while ($r = $res->fetch_assoc()) {
+            $r['duration'] = (int)ceil((strtotime($r['booking_date'].' '.$r['end_time']) - strtotime($r['booking_date'].' '.$r['start_time'])) / 3600);
+            $r['payment_method'] = '-';
+            $r['proof_image'] = '';
+            $rows[] = $r;
+        }
+        $stmt->close();
+    } else {
+        $stmt = $conn->prepare("SELECT b.id, b.booking_code, b.booking_date, b.start_time, b.end_time, b.duration, b.total_price, b.status, f.name AS venue_name, p.payment_method, p.payment_status, p.proof_image FROM bookings b JOIN fields f ON f.id=b.field_id LEFT JOIN payments p ON p.booking_id=b.id WHERE b.user_id=? ORDER BY b.created_at DESC LIMIT 20");
+        $stmt->bind_param("i", $uid);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        while($r=$res->fetch_assoc()) $rows[]=$r;
+        $stmt->close();
+    }
 } catch(Throwable $e) {}
 function fmtRp($n){ return 'Rp ' . number_format((float)$n, 0, ',', '.'); }
 ?>
@@ -92,15 +135,15 @@ function fmtRp($n){ return 'Rp ' . number_format((float)$n, 0, ',', '.'); }
               <div>
                 <p class="font-mono text-xs text-zinc-500"><?php echo htmlspecialchars($r['booking_code'], ENT_QUOTES, 'UTF-8'); ?> • <?php echo htmlspecialchars($r['status'], ENT_QUOTES, 'UTF-8'); ?></p>
                 <p class="font-semibold"><?php echo htmlspecialchars($r['venue_name'], ENT_QUOTES, 'UTF-8'); ?></p>
-                <p class="text-sm text-zinc-600"><?php echo htmlspecialchars($r['booking_date'], ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars(substr($r['start_time'],0,5), ENT_QUOTES, 'UTF-8'); ?>-<?php echo htmlspecialchars(substr($r['end_time'],0,5), ENT_QUOTES, 'UTF-8'); ?> • <?php echo (int)$r['duration']; ?> jam • <?php echo htmlspecialchars(fmtRp($r['total_price']), ENT_QUOTES, 'UTF-8'); ?></p>
+                <p class="text-sm text-zinc-600"><?php echo htmlspecialchars($r['booking_date'], ENT_QUOTES, 'UTF-8'); ?> <?php echo htmlspecialchars(substr($r['start_time'],0,5), ENT_QUOTES, 'UTF-8'); ?>-<?php echo htmlspecialchars(substr($r['end_time'],0,5), ENT_QUOTES, 'UTF-8'); ?> • <?php echo (int)($r['duration'] ?? 0); ?> jam • <?php echo htmlspecialchars(fmtRp($r['total_price']), ENT_QUOTES, 'UTF-8'); ?></p>
               </div>
-              <span class="text-xs rounded-full bg-zinc-100 px-3 py-1 self-start"><?php echo htmlspecialchars($r['payment_method'], ENT_QUOTES, 'UTF-8'); ?> / <?php echo htmlspecialchars($r['payment_status'], ENT_QUOTES, 'UTF-8'); ?></span>
+              <span class="text-xs rounded-full bg-zinc-100 px-3 py-1 self-start"><?php echo htmlspecialchars($r['payment_method'] ?? '-', ENT_QUOTES, 'UTF-8'); ?> / <?php echo htmlspecialchars($r['payment_status'] ?? '-', ENT_QUOTES, 'UTF-8'); ?></span>
             </div>
             <?php if(!empty($r['proof_image'])): ?>
               <p class="mt-2 text-xs">Bukti: <a href="<?php echo htmlspecialchars($r['proof_image'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener" class="text-vaygor-600 underline">lihat file</a> • menunggu verifikasi</p>
             <?php endif; ?>
             <div class="mt-3 flex flex-wrap gap-2">
-              <?php if(in_array($r['status'],['pending','confirmed'],true) && $r['payment_status']!=='paid'): ?>
+              <?php if($hasProofCol && in_array($r['status'],['pending','confirmed'],true) && $r['payment_status']!=='paid'): ?>
                 <form method="post" enctype="multipart/form-data" class="flex items-center gap-2">
                   <input type="hidden" name="upload_id" value="<?php echo (int)$r['id']; ?>">
                   <input type="file" name="proof" accept=".jpg,.jpeg,.png" required class="text-xs border border-zinc-200 rounded-lg px-2 py-1.5 bg-white">

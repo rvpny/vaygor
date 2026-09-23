@@ -8,14 +8,29 @@ $fid = (int)($_GET['id'] ?? 0);
 if ($fid <= 0) { header('Location: index.php?p=browse'); exit; }
 
 $venue = null;
+$isOldSchema = false;
 try {
     $stmt = $conn->prepare("SELECT id, name, location, price_per_hour, field_type FROM fields WHERE id=? AND status='available' LIMIT 1");
     $stmt->bind_param("i", $fid);
     $stmt->execute();
     $venue = $stmt->get_result()->fetch_assoc();
     $stmt->close();
-} catch (Throwable $e) {}
+} catch (Throwable $e) {
+    $venue = null;
+    $msg = $e->getMessage();
+    if (str_contains($msg, 'Unknown column') || str_contains($msg, "doesn't exist")) {
+        $isOldSchema = true;
+        try {
+            $stmt = $conn->prepare("SELECT id, name, location, price FROM fields WHERE id=? LIMIT 1");
+            $stmt->bind_param("i", $fid);
+            $stmt->execute();
+            $venue = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+        } catch (Throwable $e2) { $venue = null; }
+    }
+}
 if (!$venue) { http_response_code(404); echo '<div class="pt-28 text-center"><p class="font-spartan font-bold">Venue tidak ditemukan</p><a href="index.php?p=browse" class="mt-3 inline-flex rounded-xl bg-vaygor-600 px-5 py-2.5 text-white">Kembali</a></div>'; return; }
+$venuePrice = (float)($venue['price_per_hour'] ?? $venue['price'] ?? 0);
 
 $errors = [];
 $success = null;
@@ -62,7 +77,8 @@ if (isset($_POST['book'])) {
 
     // cek bentrok (overlap) dengan booking pending/confirmed
     if (empty($errors)) {
-        $stmt = $conn->prepare("SELECT id FROM bookings WHERE field_id=? AND booking_date=? AND status IN ('pending','confirmed') AND NOT (end_time <= ? OR start_time >= ?) LIMIT 1");
+        $fieldCol = $isOldSchema ? 'id_field' : 'field_id';
+        $stmt = $conn->prepare("SELECT id FROM bookings WHERE $fieldCol=? AND booking_date=? AND status IN ('pending','confirmed') AND NOT (end_time <= ? OR start_time >= ?) LIMIT 1");
         $st = $oldStart . ':00';
         $et = $oldEnd . ':00';
         $stmt->bind_param("isss", $fid, $oldDate, $st, $et);
@@ -78,20 +94,31 @@ if (isset($_POST['book'])) {
         $diff = ($e->getTimestamp() - $s->getTimestamp()) / 3600;
         $duration = (int)ceil($diff);
         if ($duration < 1) $duration = 1;
-        $total = $duration * (float)$venue['price_per_hour'];
+        $total = $duration * $venuePrice;
     }
 
     if (empty($errors)) {
         $code = 'BOOK-' . date('Ymd', strtotime($oldDate)) . '-' . strtoupper(substr(uniqid(), -4));
         $st = $oldStart . ':00'; $et = $oldEnd . ':00';
-        $price = (float)$venue['price_per_hour'];
-        $stmt = $conn->prepare("INSERT INTO bookings (booking_code, user_id, field_id, booking_date, start_time, end_time, duration, price_per_hour, total_price, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)");
-        $stmt->bind_param("siisssidds", $code, $uid, $fid, $oldDate, $st, $et, $duration, $price, $total, $oldNotes);
+        if ($isOldSchema) {
+            // skema lama: tanpa duration/price_per_hour/notes, rate_* wajib (default 0)
+            $stmt = $conn->prepare("INSERT INTO bookings (booking_code, id_user, id_field, booking_date, start_time, end_time, total_price, status, rate_service, rate_comfort, rate_place, review) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 0, 0, 0, '')");
+            $stmt->bind_param("siisssd", $code, $uid, $fid, $oldDate, $st, $et, $total);
+        } else {
+            $price = $venuePrice;
+            $stmt = $conn->prepare("INSERT INTO bookings (booking_code, user_id, field_id, booking_date, start_time, end_time, duration, price_per_hour, total_price, status, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)");
+            $stmt->bind_param("siisssidds", $code, $uid, $fid, $oldDate, $st, $et, $duration, $price, $total, $oldNotes);
+        }
         if ($stmt->execute()) {
             $bid = $stmt->insert_id;
             $stmt->close();
-            $stmt = $conn->prepare("INSERT INTO payments (booking_id, payment_method, payment_status, amount) VALUES (?, ?, 'unpaid', ?)");
-            $stmt->bind_param("isd", $bid, $oldPay, $total);
+            if ($isOldSchema) {
+                $stmt = $conn->prepare("INSERT INTO payments (booking_id, payment_status, amount) VALUES (?, 'unpaid', ?)");
+                $stmt->bind_param("id", $bid, $total);
+            } else {
+                $stmt = $conn->prepare("INSERT INTO payments (booking_id, payment_method, payment_status, amount) VALUES (?, ?, 'unpaid', ?)");
+                $stmt->bind_param("isd", $bid, $oldPay, $total);
+            }
             $stmt->execute(); $stmt->close();
             $success = ['code'=>$code, 'date'=>$oldDate, 'start'=>$oldStart, 'end'=>$oldEnd, 'total'=>$total, 'pay'=>$oldPay];
         } else {
@@ -106,7 +133,7 @@ function fmtRp($n){ return 'Rp ' . number_format((float)$n, 0, ',', '.'); }
   <div class="mx-auto max-w-3xl px-6 sm:px-8 lg:px-12 py-8">
     <a href="index.php?p=produk&id=<?php echo (int)$venue['id']; ?>" class="text-sm text-zinc-500 hover:text-vaygor-600">← Kembali ke detail</a>
     <h1 class="mt-3 font-spartan text-2xl sm:text-3xl font-extrabold">Booking <?php echo htmlspecialchars($venue['name'], ENT_QUOTES, 'UTF-8'); ?></h1>
-    <p class="text-sm text-zinc-600"><?php echo htmlspecialchars($venue['location'], ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars(fmtRp($venue['price_per_hour']), ENT_QUOTES, 'UTF-8'); ?>/jam</p>
+    <p class="text-sm text-zinc-600"><?php echo htmlspecialchars($venue['location'], ENT_QUOTES, 'UTF-8'); ?> - <?php echo htmlspecialchars(fmtRp($venuePrice), ENT_QUOTES, 'UTF-8'); ?>/jam</p>
 
     <?php if ($success): ?>
       <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6">

@@ -1,27 +1,62 @@
 ﻿<?php
 $vid = (int)($_GET['id'] ?? 1);
+
+function p_price($n) { return 'Rp ' . number_format((float)$n, 0, ',', '.'); }
+function p_price_of($row) { return $row['price_per_hour'] ?? $row['price'] ?? 0; }
+function p_img($row)
+{
+    $c = $row['image'] ?? '';
+    if ($c !== '') {
+        if (file_exists(__DIR__ . '/../assets/uploads/' . $c)) return 'assets/uploads/' . $c;
+        if (file_exists(__DIR__ . '/../assets/images/' . $c)) return 'assets/images/' . $c;
+    }
+    if (file_exists(__DIR__ . '/../assets/images/lapangan.png')) return 'assets/images/lapangan.png';
+    if (file_exists(__DIR__ . '/../assets/images/lapangan-pancuran.png')) return 'assets/images/lapangan-pancuran.png';
+    return 'assets/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png';
+}
+
 $venue = null;
+$isOldSchema = false;
 try {
-    $stmt = $conn->prepare("SELECT id, name, location, description, field_type, price_per_hour, image FROM fields WHERE id = ? AND status='available' LIMIT 1");
+    $stmt = $conn->prepare("SELECT f.* FROM fields f WHERE f.id = ? AND f.status='available' LIMIT 1");
     $stmt->bind_param("i", $vid);
     $stmt->execute();
-    $res = $stmt->get_result();
-    $venue = $res->fetch_assoc();
+    $venue = $stmt->get_result()->fetch_assoc();
     $stmt->close();
-} catch (Throwable $e) { $venue = null; }
+} catch (Throwable $e) {
+    $venue = null;
+    $msg = $e->getMessage();
+    if (str_contains($msg, 'Unknown column') || str_contains($msg, "doesn't exist")) {
+        $isOldSchema = true;
+        try {
+            $stmt = $conn->prepare("SELECT f.* FROM fields f WHERE f.id = ? LIMIT 1");
+            $stmt->bind_param("i", $vid);
+            $stmt->execute();
+            $venue = $stmt->get_result()->fetch_assoc();
+            $stmt->close();
+        } catch (Throwable $e2) { $venue = null; }
+    }
+}
 if (!$venue) {
     http_response_code(404);
     echo '<div class="pt-28 pb-12 text-center"><p class="font-spartan text-xl font-bold">Venue tidak ditemukan</p><a href="index.php?p=browse" class="mt-4 inline-flex rounded-xl bg-vaygor-600 px-5 py-2.5 text-sm font-bold text-white">Kembali ke browse</a></div>';
     return;
 }
-function p_img($row) {
-    $c = $row['image'] ?? '';
-    $base = __DIR__ . '/../assets/images/';
-    if ($c !== '' && file_exists($base . $c)) return 'assets/images/' . $c;
-    if (file_exists($base . 'lapangan-pancuran.png')) return 'assets/images/lapangan-pancuran.png';
-    return 'assets/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png';
+
+// tipe venue: field_type (skema baru) atau kategori pertama dari fields_kat (skema lama)
+$venueType = trim((string)($venue['field_type'] ?? ''));
+if ($venueType === '') {
+    try {
+        $stmt = $conn->prepare("SELECT k.name_kat FROM fields_kat fk JOIN kategori k ON k.id_kat = fk.id_kat WHERE fk.id_field = ? LIMIT 1");
+        $stmt->bind_param("i", $vid);
+        $stmt->execute();
+        $kr = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        $venueType = $kr['name_kat'] ?? '';
+    } catch (Throwable $e) {}
 }
-function p_price($n) { return 'Rp ' . number_format((float)$n, 0, ',', '.'); }
+if ($venueType === '') $venueType = 'Lapangan';
+
 $scheds = [];
 try {
     $stmt = $conn->prepare("SELECT day_of_week, open_time, close_time FROM field_schedules WHERE field_id=? ORDER BY FIELD(day_of_week,'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday')");
@@ -31,9 +66,13 @@ try {
     while($row=$r->fetch_assoc()) $scheds[]=$row;
     $stmt->close();
 } catch(Throwable $e) {}
+
 $other = [];
 try {
-    $stmt = $conn->prepare("SELECT id, name, field_type, price_per_hour, image FROM fields WHERE id != ? AND status='available' ORDER BY id ASC LIMIT 3");
+    $sql = $isOldSchema
+        ? "SELECT f.* FROM fields f WHERE f.id != ? ORDER BY f.id ASC LIMIT 3"
+        : "SELECT f.* FROM fields f WHERE f.id != ? AND f.status='available' ORDER BY f.id ASC LIMIT 3";
+    $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $vid);
     $stmt->execute();
     $r = $stmt->get_result();
@@ -61,14 +100,14 @@ try {
 
       <div class="rounded-2xl border border-zinc-200 bg-white p-6">
         <div class="flex flex-wrap gap-2">
-          <span class="rounded-full bg-vaygor-50 px-3 py-1 text-xs font-semibold text-vaygor-700"><?php echo htmlspecialchars(ucfirst($venue['field_type']), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="rounded-full bg-vaygor-50 px-3 py-1 text-xs font-semibold text-vaygor-700"><?php echo htmlspecialchars(ucfirst($venueType), ENT_QUOTES, 'UTF-8'); ?></span>
           <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">Football</span>
           <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">24 Hour</span>
         </div>
         <h1 class="mt-3 font-spartan text-2xl sm:text-3xl font-extrabold tracking-tight"><?php echo htmlspecialchars($venue['name'], ENT_QUOTES, 'UTF-8'); ?></h1>
         <p class="mt-1 text-sm text-zinc-600"><?php echo htmlspecialchars($venue['location'], ENT_QUOTES, 'UTF-8'); ?></p>
         <div class="mt-3 flex items-center gap-2">
-          <span class="font-spartan text-2xl font-extrabold text-vaygor-600"><?php echo htmlspecialchars(p_price($venue['price_per_hour']), ENT_QUOTES, 'UTF-8'); ?></span>
+          <span class="font-spartan text-2xl font-extrabold text-vaygor-600"><?php echo htmlspecialchars(p_price(p_price_of($venue)), ENT_QUOTES, 'UTF-8'); ?></span>
           <span class="text-sm text-zinc-500">/ jam</span>
           <span class="ml-auto text-xs text-zinc-500">25 Reviews • 4.4</span>
         </div>
@@ -89,8 +128,8 @@ try {
           <h2 class="font-spartan text-lg font-bold">Detail venue</h2>
           <dl class="mt-3 grid grid-cols-2 gap-3 text-sm">
             <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Luas</dt><dd class="font-semibold">25 x 11</dd></div>
-            <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Harga</dt><dd class="font-semibold"><?php echo htmlspecialchars(p_price($venue['price_per_hour']), ENT_QUOTES, 'UTF-8'); ?>/jam</dd></div>
-            <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Tipe</dt><dd class="font-semibold"><?php echo htmlspecialchars(ucfirst($venue['field_type']), ENT_QUOTES, 'UTF-8'); ?></dd></div>
+            <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Harga</dt><dd class="font-semibold"><?php echo htmlspecialchars(p_price(p_price_of($venue)), ENT_QUOTES, 'UTF-8'); ?>/jam</dd></div>
+            <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Tipe</dt><dd class="font-semibold"><?php echo htmlspecialchars(ucfirst($venueType), ENT_QUOTES, 'UTF-8'); ?></dd></div>
             <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Lokasi</dt><dd class="font-semibold"><?php echo htmlspecialchars($venue['location'], ENT_QUOTES, 'UTF-8'); ?></dd></div>
           </dl>
         </div>
@@ -163,7 +202,7 @@ try {
               <img src="<?php echo htmlspecialchars(p_img($o), ENT_QUOTES, 'UTF-8'); ?>" alt="" class="h-16 w-16 rounded-xl object-cover">
               <div>
                 <p class="text-sm font-bold"><?php echo htmlspecialchars($o['name'], ENT_QUOTES, 'UTF-8'); ?></p>
-                <p class="text-xs text-zinc-500"><?php echo htmlspecialchars(ucfirst($o['field_type']), ENT_QUOTES, 'UTF-8'); ?> • <?php echo htmlspecialchars(p_price($o['price_per_hour']), ENT_QUOTES, 'UTF-8'); ?></p>
+                <p class="text-xs text-zinc-500"><?php echo htmlspecialchars(ucfirst($o['field_type'] ?? 'Lapangan'), ENT_QUOTES, 'UTF-8'); ?> • <?php echo htmlspecialchars(p_price(p_price_of($o)), ENT_QUOTES, 'UTF-8'); ?></p>
               </div>
             </a>
           <?php endforeach; endif; ?>

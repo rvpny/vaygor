@@ -111,9 +111,10 @@
 
       <div class="flex flex-row gap-5 overflow-x-auto p-4">
         <?php
-        $qkat = mysqli_query($conn, "SELECT * FROM kategori ORDER BY name_kat DESC");
+        $qkat = false;
+        try { $qkat = mysqli_query($conn, "SELECT * FROM kategori ORDER BY name_kat DESC"); } catch (Throwable $ek) {}
 
-        while ($k = mysqli_fetch_assoc($qkat)): ?>
+        while ($qkat && ($k = mysqli_fetch_assoc($qkat))): ?>
           <a href="index.php?p=browse&kat=<?= $k['id_kat']; ?>" class="group relative shrink-0 h-52 w-64 overflow-hidden rounded-3xl ring-1 ring-black/5 transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-vaygor-900/20 sm:w-72">
             <img src="assets/images/<?= $k['logo_kat']; ?>" alt="<?= $k['name_kat']; ?>" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110">
             <div class="absolute inset-0 bg-gradient-to-t from-vaygor-950/90 via-vaygor-950/10 to-transparent"></div>
@@ -145,7 +146,10 @@
     <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <?php
       $dir = 'assets/uploads/';
-      $qv = mysqli_query($conn, "
+      $qv = false;
+      $venueFallback = 'SELECT f.*, NULL AS category, 0 AS rating, 0 AS total_rating FROM fields f ORDER BY f.id ASC LIMIT 4';
+      try {
+        $qv = mysqli_query($conn, "
     SELECT 
         f.*,
         (
@@ -189,11 +193,25 @@
     GROUP BY f.id 
     ORDER BY total_rating DESC
     LIMIT 4
-");
-      while ($v = mysqli_fetch_assoc($qv)): ?>
+    ");
+      } catch (Throwable $ev) { $qv = false; }
+      if (!$qv) {
+        try { $qv = mysqli_query($conn, $venueFallback); } catch (Throwable $ev2) { $qv = false; }
+      }
+      if (!$qv): ?>
+        <p class="text-sm text-zinc-500">Belum ada venue.</p>
+      <?php else:
+      while ($v = mysqli_fetch_assoc($qv)):
+        $vimg = trim((string)($v['image'] ?? ''));
+        if ($vimg !== '' && file_exists(__DIR__ . '/../assets/uploads/' . $vimg)) $vsrc = 'assets/uploads/' . $vimg;
+        elseif ($vimg !== '' && file_exists(__DIR__ . '/../assets/images/' . $vimg)) $vsrc = 'assets/images/' . $vimg;
+        elseif (file_exists(__DIR__ . '/../assets/images/lapangan.png')) $vsrc = 'assets/images/lapangan.png';
+        else $vsrc = 'assets/images/wGrqDff8QHtt4PXzMsos8WVXJI_1.png';
+        $vprice = (int)($v['price_per_hour'] ?? $v['price'] ?? 0);
+      ?>
         <a href="index.php?p=produk&id=<?= $v['id']; ?>" class="group overflow-hidden rounded-3xl bg-white ring-1 ring-black/5 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-vaygor-900/15">
           <div class="relative h-48 overflow-hidden">
-            <img src="<?= $dir . $v['image']; ?>" alt="<?= $v['name']; ?>" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
+            <img src="<?= $vsrc; ?>" alt="<?= htmlspecialchars($v['name'], ENT_QUOTES, 'UTF-8'); ?>" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
 
             <span class="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-vaygor-700 shadow backdrop-blur <?= $v['category'] !== null ? '' : 'hidden'; ?>">
               <?= htmlspecialchars($v['category']); ?>
@@ -219,12 +237,12 @@
               <?= $v['location']; ?>
             </p>
             <div class="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
-              <p class="font-spartan text-lg font-extrabold text-vaygor-600">Rp <?= number_format((int) $v['price'], 0, ',', '.'); ?><span class="text-xs font-medium text-gray-400">/jam</span></p>
+              <p class="font-spartan text-lg font-extrabold text-vaygor-600">Rp <?= number_format($vprice, 0, ',', '.'); ?><span class="text-xs font-medium text-gray-400">/jam</span></p>
               <button type="button" class="flex items-center gap-1 rounded-full bg-vaygor-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-vaygor-700">Details</button>
             </div>
           </div>
         </a>
-      <?php endwhile; ?>
+      <?php endwhile; endif; ?>
     </div>
   </section>
 

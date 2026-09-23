@@ -179,7 +179,7 @@ try {
           </div>
           <div class="mt-6 rounded-xl bg-zinc-50 p-4">
             <div class="flex gap-3">
-              <img src="assets/images/Kq6VosSy8jdclArIT8XO0NKR3nI.png" alt="" class="h-9 w-9 rounded-full">
+              <img src="assets/images/rafael.png" alt="Rafael" class="h-9 w-9 rounded-full object-cover">
               <div><p class="text-sm font-semibold">@Basis nama tengahku</p><p class="text-xs text-zinc-500">07 Agustus 2026</p></div>
             </div>
             <p class="mt-3 text-sm">WOYY itu danis suruh pulang cok... ganggu ae</p>

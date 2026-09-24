@@ -9,3 +9,7 @@ test-results/
 # Uploads
 assets/uploads/bukti/*
 !assets/uploads/bukti/.gitkeep
+
+# Root uploads (admin)
+uploads/*
+!uploads/.gitkeep

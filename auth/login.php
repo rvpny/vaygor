@@ -32,46 +32,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+$statLapangan = (int) db()->query('SELECT COUNT(*) FROM fields')->fetchColumn();
+$statBooking  = (int) db()->query('SELECT COUNT(*) FROM bookings')->fetchColumn();
+$statKategori = (int) db()->query('SELECT COUNT(*) FROM kategori')->fetchColumn();
+
 $base      = '..';
 $pageTitle = 'Masuk - VAYGOR';
 require __DIR__ . '/../includes/head.php';
 ?>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <div class="auth-wrap">
-  <a class="auth-brand" href="../index.php">
-    <span>V</span><span>A</span><span>Y</span><span>G</span>
-    <span class="logo-ball"><svg viewBox="0 0 512 512"><path d="M256 25C128.3 25 25 128.3 25 256s103.3 231 231 231 231-103.3 231-231S383.7 25 256 25zm0 30c20.7 0 40.8 3.1 59.7 8.9l-26.4 45.7-33.3-19.2-33.3 19.2-26.4-45.7C215.2 58.1 235.3 55 256 55zm-80.6 19.8l28.2 48.9-38.5 22.2L121 130.6c14.8-22 34-40.5 54.4-55.8zm161.2 0c20.4 15.3 39.6 33.8 54.4 55.8l-44.1 15.3-38.5-22.2 28.2-48.9z"/></svg></span>
-    <span>R</span>
-  </a>
-  <div class="auth-tagline">RENT. PLAY. WIN.</div>
-
-  <div class="auth-card">
-    <h1 class="auth-title">Masuk</h1>
-    <p class="auth-sub">Masuk untuk booking lapanganmu</p>
-
-    <?php if ($error !== ''): ?>
-      <div class="auth-alert error"><?= e($error) ?></div>
-    <?php endif; ?>
-
-    <form method="post" novalidate>
-      <?= csrf_field() ?>
-      <div class="auth-field">
-        <label for="email">Email</label>
-        <input id="email" type="email" name="email" value="<?= e($email) ?>" autocomplete="email" required>
+  <div class="auth-hero">
+    <img class="auth-hero-img" src="<?= $base ?>/assets/images/hero.png" alt="Pemain bermain bola di lapangan saat matahari terbenam">
+    <div class="auth-paths" aria-hidden="true">
+      <svg viewBox="-200 -250 950 1150" preserveAspectRatio="xMidYMid slice" fill="none">
+        <?php foreach ([1, -1] as $pos): ?>
+          <g data-pos="<?= (int) $pos ?>">
+            <?php for ($i = 0; $i < 24; $i++): $step = $i * 5 * $pos; ?>
+              <path d="M-<?= 380 - $step ?> -<?= 189 + $i * 6 ?>C-<?= 380 - $step ?> -<?= 189 + $i * 6 ?> -<?= 312 - $step ?> <?= 216 - $i * 6 ?> <?= 152 - $step ?> <?= 343 - $i * 6 ?>C<?= 616 - $step ?> <?= 470 - $i * 6 ?> <?= 684 - $step ?> <?= 875 - $i * 6 ?> <?= 684 - $step ?> <?= 875 - $i * 6 ?>"
+                stroke-width="<?= round(1.7 + $i * 0.085, 2) ?>"
+                stroke-opacity="<?= round(0.14 + $i * 0.032, 2) ?>"/>
+            <?php endfor; ?>
+          </g>
+        <?php endforeach; ?>
+      </svg>
+    </div>
+    <div class="auth-hero-veil" aria-hidden="true"></div>
+    <a class="auth-hero-brand" href="../index.php">
+      <img class="auth-hero-logo" src="<?= $base ?>/assets/images/logo(1).svg" alt="VAYGOR">
+    </a>
+    <div class="auth-hero-bottom">
+      <p class="auth-hero-title">KELOLA<br>LAPANGANMU.</p>
+      <p class="auth-hero-sub">Jadwal, booking, pembayaran — satu dashboard.</p>
+      <div class="auth-hero-stats">
+        <div><p class="num"><?= $statLapangan ?></p><p class="lbl">Venue</p></div>
+        <div><p class="num"><?= $statBooking ?></p><p class="lbl">Booking</p></div>
+        <div><p class="num"><?= $statKategori ?></p><p class="lbl">Kategori</p></div>
       </div>
-      <div class="auth-field">
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password" autocomplete="current-password" required>
-      </div>
-      <button class="auth-btn" type="submit">Masuk</button>
-    </form>
+    </div>
   </div>
 
-  <p class="auth-alt">Belum punya akun? <a href="../register.php">Daftar</a></p>
+  <div class="auth-panel">
+    <div class="auth-card">
+      <p class="auth-eyebrow">Panel Admin</p>
+      <h1 class="auth-title">Masuk pengelola.</h1>
+      <p class="auth-sub">Masuk untuk mengelola lapangan dan booking.</p>
 
-  <div class="auth-demo">
-    Akun seed:<br>
-    admin@futsalmagelang.com / admin123 (admin)<br>
-    rava@example.com / user123 (user)
+      <?php if ($error !== ''): ?>
+        <div class="auth-alert" id="login-error" role="alert"><?= e($error) ?></div>
+      <?php endif; ?>
+
+      <form method="post" novalidate>
+        <?= csrf_field() ?>
+        <div class="auth-field">
+          <label for="email">Email</label>
+          <input id="email" type="email" name="email" value="<?= e($email) ?>" autocomplete="email" required<?php if ($error !== ''): ?> aria-invalid="true" aria-describedby="login-error"<?php endif; ?>>
+        </div>
+        <div class="auth-field">
+          <label for="password">Password</label>
+          <input id="password" type="password" name="password" autocomplete="current-password" required<?php if ($error !== ''): ?> aria-invalid="true" aria-describedby="login-error"<?php endif; ?>>
+        </div>
+        <button class="auth-btn" type="submit">Masuk ke Dashboard</button>
+      </form>
+
+      <p class="auth-alt">Belum punya akun? <a href="../register.php">Daftar</a></p>
+
+      <details class="auth-demo">
+        <summary>Akun seed (dev)</summary>
+        <p>admin@futsalmagelang.com / admin123 (admin)<br>rava@example.com / user123 (user)</p>
+      </details>
+    </div>
   </div>
 </div>
 </body>

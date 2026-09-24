@@ -283,17 +283,23 @@ try {
               <div class="flex justify-between text-sm"><span>Kenyamanan &amp; Kebersihan</span><b><?php echo htmlspecialchars(number_format($avgComfort, 2, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></b></div>
               <div class="flex justify-between text-sm"><span>Komunikasi</span><b><?php echo htmlspecialchars(number_format($avgService, 2, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></b></div>
             </div>
-            <div class="mt-6 space-y-3">
+            <div class="mt-6 flex gap-3 overflow-x-auto pb-2">
               <?php foreach ($reviews as $rv): ?>
-                <div class="rounded-xl bg-zinc-50 p-4">
-                  <div class="flex gap-3">
-                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vaygor-600 text-xs font-bold text-white" aria-hidden="true"><?php echo htmlspecialchars(strtoupper(mb_substr(trim((string)$rv['name']), 0, 1, 'UTF-8')), ENT_QUOTES, 'UTF-8'); ?></div>
-                    <div>
-                      <p class="text-sm font-semibold"><?php echo htmlspecialchars($rv['name'], ENT_QUOTES, 'UTF-8'); ?></p>
-                      <p class="text-xs text-zinc-500"><?php echo htmlspecialchars($rv['dateLabel'] ?? '', ENT_QUOTES, 'UTF-8'); ?> • <span aria-hidden="true">★</span> <?php echo htmlspecialchars(number_format($rv['avg'], 1, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></p>
+                <div class="w-[320px] flex-shrink-0 rounded-xl bg-zinc-50 p-4">
+                  <div class="flex items-center gap-3">
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vaygor-600 text-xs font-extrabold text-white" aria-hidden="true"><?php echo htmlspecialchars(strtoupper(mb_substr(trim((string)$rv['name']), 0, 1, 'UTF-8')), ENT_QUOTES, 'UTF-8'); ?></span>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-semibold truncate"><?php echo htmlspecialchars($rv['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+                      <p class="text-xs text-zinc-500"><?php echo htmlspecialchars($rv['dateLabel'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
                     </div>
+                    <?php if (!empty($rv['avg']) && $rv['avg'] > 0): ?>
+                      <span class="inline-flex flex-shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-xs font-bold text-amber-600">
+                        <svg class="h-3 w-3 fill-amber-400" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                        <?php echo htmlspecialchars(number_format($rv['avg'], 1, ',', '.'), ENT_QUOTES, 'UTF-8'); ?>
+                      </span>
+                    <?php endif; ?>
                   </div>
-                  <p class="mt-3 text-sm text-zinc-800"><?php echo htmlspecialchars($rv['review'], ENT_QUOTES, 'UTF-8'); ?></p>
+                  <p class="mt-3 text-sm leading-relaxed text-zinc-700 whitespace-pre-line"><?php echo htmlspecialchars(trim($rv['review']), ENT_QUOTES, 'UTF-8'); ?></p>
                   <?php if (!empty($rv['hasReply'])): ?>
                     <div class="mt-3 rounded-xl bg-white p-3 border border-zinc-100">
                       <p class="text-xs font-semibold">Balasan dari Lapangan Pancuranmas (P.Agus):</p>

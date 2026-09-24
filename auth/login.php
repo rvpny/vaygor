@@ -66,7 +66,7 @@ require __DIR__ . '/../includes/head.php';
     </form>
   </div>
 
-  <p class="auth-alt">Belum punya akun? <a href="register.php">Daftar</a></p>
+  <p class="auth-alt">Belum punya akun? <a href="../register.php">Daftar</a></p>
 
   <div class="auth-demo">
     Akun seed:<br>

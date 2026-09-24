@@ -20,14 +20,18 @@ $active  = $adminNav ?? '';
       <svg viewBox="0 0 24 24"><path d="M12 3 2 8v2h20V8L12 3zM4 12v7h3v-7H4zm6 0v7h4v-7h-4zm7 0v7h3v-7h-3zM2 21h20v2H2v-2z"/></svg>
       <span>Lapangan</span>
     </a>
-    <span class="admin-nav-item is-disabled">
+    <a class="admin-nav-item<?= $active === 'kategori' ? ' active' : '' ?>" href="categories.php"<?= $active === 'kategori' ? ' aria-current="page"' : '' ?>>
+      <svg viewBox="0 0 24 24"><path d="M2 7h8V3H2v4zm0 14h8v-4H2v4zm10 0h8v-4h-8v4zM12 3v4h8V3h-8z"/></svg>
+      <span>Kategori</span>
+    </a>
+    <a class="admin-nav-item<?= $active === 'pengguna' ? ' active' : '' ?>" href="users.php"<?= $active === 'pengguna' ? ' aria-current="page"' : '' ?>>
       <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      <span>Pengguna</span><em>Soon</em>
-    </span>
-    <span class="admin-nav-item is-disabled">
+      <span>Pengguna</span>
+    </a>
+    <a class="admin-nav-item<?= $active === 'pembayaran' ? ' active' : '' ?>" href="payments.php"<?= $active === 'pembayaran' ? ' aria-current="page"' : '' ?>>
       <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
-      <span>Pembayaran</span><em>Soon</em>
-    </span>
+      <span>Pembayaran</span>
+    </a>
   </nav>
 
   <div class="admin-side-foot">

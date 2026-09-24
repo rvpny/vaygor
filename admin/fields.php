@@ -1,62 +1,21 @@
 <?php
 require_once __DIR__ . '/../config/helpers.php';
+require_once __DIR__ . '/_upload.php';
 require_role('admin');
 
 $pdo = db();
 
-$fieldTypes = ['indoor' => 'Indoor', 'outdoor' => 'Outdoor'];
-$statuses   = ['available' => 'Tersedia', 'maintenance' => 'Perawatan', 'inactive' => 'Nonaktif'];
-$categories = ['futsal', 'mini soccer', 'badminton', 'basket', 'volley', 'tennis'];
-
-function field_image_src(?string $image, string $base): ?string
-{
-    if (!$image) {
-        return null;
-    }
-    $relative = str_starts_with($image, 'uploads/') ? $image : 'assets/images/' . $image;
-    return is_file(dirname(__DIR__) . '/' . $relative) ? $base . '/' . $relative : null;
-}
-
-function delete_upload(?string $image): void
-{
-    if ($image && str_starts_with($image, 'uploads/')) {
-        $file = dirname(__DIR__) . '/' . $image;
-        if (is_file($file)) {
-            @unlink($file);
-        }
-    }
-}
-
-function save_upload(array &$errors): ?string
-{
-    if (empty($_FILES['image']['name'])) {
-        return null;
-    }
-    $file = $_FILES['image'];
-    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        $errors[] = 'Upload gambar gagal.';
-        return null;
-    }
-    if ($file['size'] > 2 * 1024 * 1024) {
-        $errors[] = 'Ukuran gambar maksimal 2MB.';
-        return null;
-    }
-    $info   = @getimagesize($file['tmp_name']);
-    $extMap = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-    if (!$info || !isset($extMap[$info['mime']])) {
-        $errors[] = 'Format gambar harus JPG, PNG, atau WEBP.';
-        return null;
-    }
-    $name = bin2hex(random_bytes(16)) . '.' . $extMap[$info['mime']];
-    if (!move_uploaded_file($file['tmp_name'], dirname(__DIR__) . '/uploads/' . $name)) {
-        $errors[] = 'Gagal menyimpan gambar.';
-        return null;
-    }
-    return 'uploads/' . $name;
-}
+$cats  = $pdo->query('SELECT id_kat, name_kat FROM kategori ORDER BY name_kat')->fetchAll();
+$catId = array_column($cats, 'id_kat');
 
 $action = (string) ($_GET['action'] ?? 'list');
+if ($action === 'new') {
+    $action = 'form';
+}
 $editId = (int) ($_GET['edit'] ?? 0);
+if ($editId > 0 && $action === 'list') {
+    $action = 'form';
+}
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -69,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute([$id]);
         $image = $stmt->fetchColumn();
         if ($image !== false) {
+            $pdo->prepare('DELETE FROM fields_kat WHERE id_field = ?')->execute([$id]);
             $pdo->prepare('DELETE FROM fields WHERE id = ?')->execute([$id]);
             delete_upload($image ?: null);
             flash_set('ok', 'Lapangan dihapus.');
@@ -82,13 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $id        = (int) ($_POST['id'] ?? 0);
         $name      = trim((string) ($_POST['name'] ?? ''));
         $location  = trim((string) ($_POST['location'] ?? ''));
-        $category  = trim((string) ($_POST['category'] ?? ''));
-        $surface   = trim((string) ($_POST['surface'] ?? ''));
-        $type      = (string) ($_POST['field_type'] ?? '');
-        $status    = (string) ($_POST['status'] ?? '');
         $capacity  = (int) ($_POST['capacity'] ?? 0);
-        $price     = (string) ($_POST['price_per_hour'] ?? '0');
+        $price     = (string) ($_POST['price'] ?? '0');
         $desc      = trim((string) ($_POST['description'] ?? ''));
+        $selected  = array_map('intval', (array) ($_POST['kategori'] ?? []));
+        $selected  = array_values(array_intersect($selected, $catId));
 
         if ($name === '') {
             $errors[] = 'Nama lapangan wajib diisi.';
@@ -100,17 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (mb_strlen($location) > 255) {
             $errors[] = 'Lokasi maksimal 255 karakter.';
         }
-        if (!isset($fieldTypes[$type])) {
-            $errors[] = 'Tipe lapangan tidak valid.';
-        }
-        if (!isset($statuses[$status])) {
-            $errors[] = 'Status tidak valid.';
-        }
-        if ($category !== '' && mb_strlen($category) > 50) {
-            $errors[] = 'Kategori maksimal 50 karakter.';
-        }
         if (!is_numeric($price) || (float) $price < 0) {
-            $errors[] = 'Harga per jam harus angka tidak negatif.';
+            $errors[] = 'Harga harus angka tidak negatif.';
         }
         if ($capacity < 0) {
             $errors[] = 'Kapasitas tidak boleh negatif.';
@@ -134,17 +83,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $name,
                     $location,
                     $desc !== '' ? $desc : null,
-                    $type,
-                    $category !== '' ? $category : null,
-                    $surface !== '' ? $surface : null,
                     $capacity,
                     number_format((float) $price, 2, '.', ''),
-                    $status,
                 ];
 
                 if ($id > 0) {
-                    $sql = 'UPDATE fields SET name = ?, location = ?, description = ?, field_type = ?, category = ?,
-                            surface = ?, capacity = ?, price_per_hour = ?, status = ?';
+                    $sql = 'UPDATE fields SET name = ?, location = ?, description = ?, capacity = ?, price = ?';
                     if ($newImage) {
                         $sql     .= ', image = ?';
                         $params[] = $newImage;
@@ -158,10 +102,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } else {
                     $params[] = $newImage;
                     $pdo->prepare(
-                        'INSERT INTO fields (name, location, description, field_type, category, surface,
-                         capacity, price_per_hour, status, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                        'INSERT INTO fields (name, location, description, capacity, price, image)
+                         VALUES (?, ?, ?, ?, ?, ?)'
                     )->execute($params);
+                    $id = (int) $pdo->lastInsertId();
                 }
+
+                $pdo->prepare('DELETE FROM fields_kat WHERE id_field = ?')->execute([$id]);
+                $stmt = $pdo->prepare('INSERT INTO fields_kat (id_field, id_kat) VALUES (?, ?)');
+                foreach ($selected as $kat) {
+                    $stmt->execute([$id, $kat]);
+                }
+
                 flash_set('ok', 'Lapangan berhasil disimpan.');
                 redirect('fields.php');
             }
@@ -173,17 +125,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $form = [
-    'id'             => 0,
-    'name'           => '',
-    'location'       => '',
-    'description'    => '',
-    'field_type'     => 'indoor',
-    'category'       => '',
-    'surface'        => '',
-    'capacity'       => 10,
-    'price_per_hour' => '',
-    'status'         => 'available',
-    'image'          => null,
+    'id'          => 0,
+    'name'        => '',
+    'location'    => '',
+    'description' => '',
+    'capacity'    => 10,
+    'price'       => '',
+    'image'       => null,
+    'kategori'    => [],
 ];
 
 if ($action === 'form') {
@@ -193,6 +142,9 @@ if ($action === 'form') {
         $row = $stmt->fetch();
         if ($row) {
             $form = array_merge($form, $row);
+            $stmt = $pdo->prepare('SELECT id_kat FROM fields_kat WHERE id_field = ?');
+            $stmt->execute([$editId]);
+            $form['kategori'] = array_map('intval', $stmt->fetchAll(PDO::FETCH_COLUMN));
         } else {
             $action = 'list';
             flash_set('err', 'Lapangan tidak ditemukan.');
@@ -200,16 +152,13 @@ if ($action === 'form') {
     }
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $form = array_merge($form, [
-            'id'             => $editId,
-            'name'           => $name ?? '',
-            'location'       => $location ?? '',
-            'description'    => $desc ?? '',
-            'field_type'     => $type ?? 'indoor',
-            'category'       => $category ?? '',
-            'surface'        => $surface ?? '',
-            'capacity'       => $capacity ?? 10,
-            'price_per_hour' => $price ?? '',
-            'status'         => $status ?? 'available',
+            'id'          => $editId,
+            'name'        => $name ?? '',
+            'location'    => $location ?? '',
+            'description' => $desc ?? '',
+            'capacity'    => $capacity ?? 10,
+            'price'       => $price ?? '',
+            'kategori'    => $selected ?? [],
         ]);
     }
 }
@@ -253,35 +202,9 @@ require __DIR__ . '/../includes/head.php';
               <input class="admin-input" id="name" type="text" name="name" value="<?= e($form['name']) ?>" required>
             </div>
             <div class="admin-field">
-              <label for="category">Kategori</label>
-              <input class="admin-input" id="category" type="text" name="category" list="categoryOptions"
-                     value="<?= e($form['category']) ?>" placeholder="futsal / badminton / basket">
-              <datalist id="categoryOptions">
-                <?php foreach ($categories as $c): ?>
-                  <option value="<?= e($c) ?>"></option>
-                <?php endforeach; ?>
-              </datalist>
-            </div>
-            <div class="admin-field">
-              <label for="field_type">Tipe</label>
-              <select class="admin-input" id="field_type" name="field_type">
-                <?php foreach ($fieldTypes as $val => $label): ?>
-                  <option value="<?= e($val) ?>"<?= $form['field_type'] === $val ? ' selected' : '' ?>><?= e($label) ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            <div class="admin-field">
-              <label for="status">Status</label>
-              <select class="admin-input" id="status" name="status">
-                <?php foreach ($statuses as $val => $label): ?>
-                  <option value="<?= e($val) ?>"<?= $form['status'] === $val ? ' selected' : '' ?>><?= e($label) ?></option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            <div class="admin-field">
-              <label for="price_per_hour">Harga per Jam (Rp)</label>
-              <input class="admin-input" id="price_per_hour" type="number" name="price_per_hour" min="0" step="1000"
-                     value="<?= e($form['price_per_hour']) ?>" required>
+              <label for="price">Harga (Rp)</label>
+              <input class="admin-input" id="price" type="number" name="price" min="0" step="1000"
+                     value="<?= e($form['price']) ?>" required>
             </div>
             <div class="admin-field">
               <label for="capacity">Kapasitas</label>
@@ -289,12 +212,20 @@ require __DIR__ . '/../includes/head.php';
                      value="<?= e($form['capacity']) ?>">
             </div>
             <div class="admin-field">
-              <label for="surface">Permukaan</label>
-              <input class="admin-input" id="surface" type="text" name="surface" value="<?= e($form['surface']) ?>" placeholder="Vinyl / Rumput / Semen">
-            </div>
-            <div class="admin-field">
               <label for="location">Lokasi</label>
               <input class="admin-input" id="location" type="text" name="location" value="<?= e($form['location']) ?>" required>
+            </div>
+            <div class="admin-field full">
+              <label>Kategori</label>
+              <div class="admin-check-group">
+                <?php foreach ($cats as $c): ?>
+                  <label class="admin-check">
+                    <input type="checkbox" name="kategori[]" value="<?= (int) $c['id_kat'] ?>"
+                           <?= in_array((int) $c['id_kat'], $form['kategori'], true) ? 'checked' : '' ?>>
+                    <?= e($c['name_kat']) ?>
+                  </label>
+                <?php endforeach; ?>
+              </div>
             </div>
             <div class="admin-field full">
               <label for="description">Deskripsi</label>
@@ -303,7 +234,7 @@ require __DIR__ . '/../includes/head.php';
             <div class="admin-field full">
               <label for="image">Gambar (JPG/PNG/WEBP, maks 2MB)</label>
               <input class="admin-input" id="image" type="file" name="image" accept="image/jpeg,image/png,image/webp">
-              <?php $current = field_image_src($form['image'], '..'); ?>
+              <?php $current = image_src($form['image'], '..'); ?>
               <?php if ($current): ?>
                 <div class="admin-current-img">
                   <img class="admin-thumb" src="<?= e($current) ?>" alt="">
@@ -325,13 +256,14 @@ require __DIR__ . '/../includes/head.php';
     <?php else: ?>
 
       <?php
-      $fields = $pdo->query('SELECT * FROM fields ORDER BY created_at DESC')->fetchAll();
-
-      $statusBadge = [
-          'available'   => ['Tersedia', 'badge-available'],
-          'maintenance' => ['Perawatan', 'badge-maintenance'],
-          'inactive'    => ['Nonaktif', 'badge-inactive'],
-      ];
+      $fields = $pdo->query(
+          'SELECT f.*, GROUP_CONCAT(k.name_kat ORDER BY k.name_kat SEPARATOR \', \') AS kategori
+           FROM fields f
+           LEFT JOIN fields_kat fk ON fk.id_field = f.id
+           LEFT JOIN kategori k ON k.id_kat = fk.id_kat
+           GROUP BY f.id
+           ORDER BY f.id DESC'
+      )->fetchAll();
       ?>
 
       <header class="admin-topbar">
@@ -360,18 +292,14 @@ require __DIR__ . '/../includes/head.php';
                   <th>Gambar</th>
                   <th>Nama</th>
                   <th>Kategori</th>
-                  <th>Tipe</th>
-                  <th>Harga / Jam</th>
-                  <th>Status</th>
+                  <th>Kapasitas</th>
+                  <th>Harga</th>
                   <th>Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 <?php foreach ($fields as $f): ?>
-                  <?php
-                  $src = field_image_src($f['image'], '..');
-                  [$stLabel, $stClass] = $statusBadge[$f['status']] ?? [$f['status'], 'badge-inactive'];
-                  ?>
+                  <?php $src = image_src($f['image'], '..'); ?>
                   <tr>
                     <td>
                       <?php if ($src): ?>
@@ -384,10 +312,9 @@ require __DIR__ . '/../includes/head.php';
                       <?= e($f['name']) ?>
                       <div class="admin-sub"><?= e($f['location']) ?></div>
                     </td>
-                    <td class="admin-muted"><?= e($f['category'] ?: '—') ?></td>
-                    <td class="admin-muted"><?= e($fieldTypes[$f['field_type']] ?? $f['field_type']) ?></td>
-                    <td>Rp <?= number_format((float) $f['price_per_hour'], 0, ',', '.') ?></td>
-                    <td><span class="badge <?= e($stClass) ?>"><?= e($stLabel) ?></span></td>
+                    <td class="admin-muted"><?= e((string) $f['kategori'] ?: '—') ?></td>
+                    <td class="admin-muted"><?= (int) $f['capacity'] ?></td>
+                    <td>Rp <?= number_format((float) $f['price'], 0, ',', '.') ?></td>
                     <td>
                       <div class="admin-row-actions">
                         <a class="admin-btn-sm" href="fields.php?edit=<?= (int) $f['id'] ?>">Edit</a>

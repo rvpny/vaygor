@@ -15,9 +15,9 @@ $recent = $pdo->query(
     "SELECT b.booking_code, b.booking_date, b.start_time, b.end_time, b.total_price, b.status,
             u.name AS user_name, f.name AS field_name
      FROM bookings b
-     JOIN users u ON u.id = b.user_id
-     JOIN fields f ON f.id = b.field_id
-     ORDER BY b.created_at DESC
+     JOIN users u ON u.id = b.id_user
+     JOIN fields f ON f.id = b.id_field
+     ORDER BY b.id DESC
      LIMIT 5"
 )->fetchAll();
 

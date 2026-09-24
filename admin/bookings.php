@@ -28,21 +28,21 @@ if (!in_array($filter, $allowedStatus, true)) {
     $filter = '';
 }
 
-$sql = "SELECT b.id, b.booking_code, b.booking_date, b.start_time, b.end_time, b.duration,
-               b.total_price, b.status, b.notes,
+$sql = "SELECT b.id, b.booking_code, b.booking_date, b.start_time, b.end_time,
+               b.total_price, b.status,
                u.name AS user_name, u.phone AS user_phone,
                f.name AS field_name,
-               p.payment_status, p.payment_method
+               p.payment_status
         FROM bookings b
-        JOIN users u ON u.id = b.user_id
-        JOIN fields f ON f.id = b.field_id
+        JOIN users u ON u.id = b.id_user
+        JOIN fields f ON f.id = b.id_field
         LEFT JOIN payments p ON p.booking_id = b.id";
 $params = [];
 if ($filter !== '') {
     $sql .= ' WHERE b.status = ?';
     $params[] = $filter;
 }
-$sql .= ' ORDER BY b.created_at DESC';
+$sql .= ' ORDER BY b.id DESC';
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -142,13 +142,11 @@ require __DIR__ . '/../includes/head.php';
                   <td class="admin-muted">
                     <?= e(date('d M Y', strtotime($b['booking_date']))) ?> &middot;
                     <?= e(substr($b['start_time'], 0, 5)) ?>&ndash;<?= e(substr($b['end_time'], 0, 5)) ?>
-                    <div class="admin-sub"><?= (int) $b['duration'] ?> jam</div>
                   </td>
                   <td>Rp <?= number_format((float) $b['total_price'], 0, ',', '.') ?></td>
                   <td>
                     <?php if ($pay): ?>
                       <span class="badge badge-pay-<?= e($pay) ?>"><?= e($paymentLabel[$pay] ?? $pay) ?></span>
-                      <div class="admin-sub"><?= e(strtoupper($b['payment_method'])) ?></div>
                     <?php else: ?>
                       <span class="admin-muted">&mdash;</span>
                     <?php endif; ?>

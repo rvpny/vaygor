@@ -7,11 +7,6 @@
 
     <div class="relative mx-auto max-w-7xl px-5 pb-40 pt-32 sm:px-8 sm:pt-36 lg:px-10 lg:pb-44 lg:pt-44">
       <div class="max-w-3xl">
-        <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-neon ring-1 ring-white/20 backdrop-blur">
-          <span class="h-2 w-2 animate-pulse rounded-full bg-neon"></span>
-          Sports Court Booking
-        </span>
-
         <h1 class="mt-6 font-spartan text-6xl font-black leading-[0.9] tracking-[-0.03em] text-white sm:text-7xl lg:text-8xl">
           FIND YOUR<br>
           <span class="text-neon">PLAY.</span>
@@ -45,7 +40,7 @@
 
   <!-- ═══════════ SEARCH CARD ═══════════ -->
   <section class="relative z-10 mx-auto -mt-16 max-w-5xl px-5 sm:px-8">
-    <form action="index.php" method="get" class="grid gap-4 rounded-3xl bg-white p-5 shadow-2xl shadow-vaygor-900/10 ring-1 ring-black/5 sm:p-6 md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-end">
+    <form action="index.php" method="get" class="grid gap-4 rounded-3xl bg-white p-5 shadow-2xl shadow-vaygor-900/10 ring-1 ring-black/5 sm:p-6 md:grid-cols-[1.4fr_1fr_auto] md:items-end">
       <input type="hidden" name="p" value="browse">
 
       <div>
@@ -63,24 +58,12 @@
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">Jenis Olahraga</label>
         <select name="jenis" class="w-full cursor-pointer appearance-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-sm text-gray-900 outline-none transition focus:border-vaygor-400 focus:bg-white focus:ring-2 focus:ring-vaygor-100">
           <option value="">Semua Olahraga</option>
-          <option value="1">Sepak Bola</option>
-          <option value="2">Futsal</option>
-          <option value="5">Badminton</option>
-          <option value="6">Basket</option>
-          <option value="7">Tenis</option>
-          <option value="8">Padel</option>
+          <?php
+          $qjenis = mysqli_query($conn, "SELECT id_kat, name_kat FROM kategori ORDER BY id_kat");
+          while ($jr = mysqli_fetch_assoc($qjenis)): ?>
+            <option value="<?= (int) $jr['id_kat']; ?>"><?= htmlspecialchars($jr['name_kat'], ENT_QUOTES, 'UTF-8'); ?></option>
+          <?php endwhile; ?>
         </select>
-      </div>
-
-      <div>
-        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">Tanggal Main</label>
-        <div class="flex items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3.5 transition focus-within:border-vaygor-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-vaygor-100">
-          <svg class="h-5 w-5 flex-shrink-0 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <rect x="3" y="4" width="18" height="18" rx="3" />
-            <path d="M16 2v4M8 2v4M3 10h18" />
-          </svg>
-          <input type="date" name="tanggal" class="w-full bg-transparent text-sm text-gray-900 outline-none">
-        </div>
       </div>
 
       <button type="submit" class="flex items-center justify-center gap-2 rounded-2xl bg-vaygor-600 px-7 py-4 text-sm font-bold text-white shadow-lg shadow-vaygor-600/30 transition hover:bg-vaygor-700 hover:shadow-xl hover:shadow-vaygor-700/30">

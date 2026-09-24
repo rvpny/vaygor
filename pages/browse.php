@@ -1,18 +1,22 @@
 ﻿<?php
 // expects $conn from index.php
-// Filter: q/nama (nama/lokasi), jenis/kat (kategori), tanggal/date (diteruskan ke booking)
-$q     = trim($_GET['q'] ?? trim($_GET['nama'] ?? ''));
-$jenis = trim($_GET['jenis'] ?? '');
-$kat   = trim($_GET['kat'] ?? '');
-$date  = trim($_GET['tanggal'] ?? trim($_GET['date'] ?? ''));
+// Filter: q/nama (nama/lokasi), jenis/kat (kategori), lokasi (kota/lokasi)
+$q      = trim($_GET['q'] ?? trim($_GET['nama'] ?? ''));
+$jenis  = trim($_GET['jenis'] ?? '');
+$kat    = trim($_GET['kat'] ?? '');
+$lokasi = trim($_GET['lokasi'] ?? '');
+
+$perPage = 10;
+$page    = max(1, (int) ($_GET['hal'] ?? 1));
 
 $catFilter = $jenis !== '' ? $jenis : $kat;
 
 $venues = [];
 $dbError = '';
+$total = 0;
+$totalPages = 1;
 try {
-  $sql = "SELECT f.id, f.name, f.location, f.description, f.capacity, f.price, f.image
-            FROM fields f";
+  $sqlBase = " FROM fields f";
   $joins  = '';
   $wheres = ['1 = 1'];
   $params = [];
@@ -33,12 +37,31 @@ try {
     $types .= 'ss';
   }
 
-  $sql .= $joins . " WHERE " . implode(' AND ', $wheres) . " ORDER BY f.id ASC";
+  if ($lokasi !== '') {
+    $wheres[] = "f.location LIKE ?";
+    $params[] = "%$lokasi%";
+    $types .= 's';
+  }
 
-  $stmt = $conn->prepare($sql);
+  $whereSql = " WHERE " . implode(' AND ', $wheres);
+
+  $stmt = $conn->prepare("SELECT COUNT(DISTINCT f.id) AS total" . $sqlBase . $joins . $whereSql);
   if (!empty($params)) {
     $stmt->bind_param($types, ...$params);
   }
+  $stmt->execute();
+  $total = (int) $stmt->get_result()->fetch_assoc()['total'];
+  $stmt->close();
+
+  $totalPages = max(1, (int) ceil($total / $perPage));
+  $page = min($page, $totalPages);
+  $offset = max(0, ($page - 1) * $perPage);
+
+  $sql = "SELECT f.id, f.name, f.location, f.description, f.capacity, f.price, f.image" . $sqlBase . $joins . $whereSql . " GROUP BY f.id ORDER BY f.id ASC LIMIT ? OFFSET ?";
+
+  $stmt = $conn->prepare($sql);
+  $bindParams = array_merge($params, [$perPage, $offset]);
+  $stmt->bind_param($types . 'ii', ...$bindParams);
   $stmt->execute();
   $res = $stmt->get_result();
   while ($row = $res->fetch_assoc()) {
@@ -83,25 +106,35 @@ function chip_href($opts = [])
   if (!empty($opts['q'])) $parts[] = 'q=' . urlencode($opts['q']);
   if (!empty($opts['jenis'])) $parts[] = 'jenis=' . urlencode($opts['jenis']);
   if (!empty($opts['tanggal'])) $parts[] = 'tanggal=' . urlencode($opts['tanggal']);
+  if (!empty($opts['lokasi'])) $parts[] = 'lokasi=' . urlencode($opts['lokasi']);
+  return implode('&', $parts);
+}
+function page_href($pg)
+{
+  global $q, $jenis, $kat, $lokasi;
+  $parts = ['index.php?p=browse'];
+  if ($q !== '') $parts[] = 'q=' . urlencode($q);
+  if ($jenis !== '') $parts[] = 'jenis=' . urlencode($jenis);
+  if ($kat !== '') $parts[] = 'kat=' . urlencode($kat);
+  if ($lokasi !== '') $parts[] = 'lokasi=' . urlencode($lokasi);
+  $parts[] = 'hal=' . (int) $pg;
   return implode('&', $parts);
 }
 
-$countText = count($venues) . ' venue';
-if ($q !== '' || $catFilter !== '') $countText .= ' ditemukan';
+$countText = $total . ' venue';
+if ($q !== '' || $catFilter !== '' || $lokasi !== '') $countText .= ' ditemukan';
 ?>
 <section class="relative mt-[-25px]">
   <!-- Hero strip -->
   <div class="bg-vaygor-600 text-white py-8">
     <div class="relative mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 py-15">
-      <p class="inline-flex rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-widest uppercase ring-1 ring-white/20">Jelajahi Lapangan</p>
       <h1 class="mt-3 font-spartan text-3xl sm:text-4xl font-extrabold tracking-tight">Cari yang pas buat timmu</h1>
-      <p class="mt-2 text-sm text-white/90">Hasil untuk <span class="font-semibold"><?php echo $q !== '' ? htmlspecialchars($q, ENT_QUOTES, 'UTF-8') : 'semua venue'; ?></span> - <?php echo htmlspecialchars($countText, ENT_QUOTES, 'UTF-8'); ?></p>
     </div>
   </div>
 
   <!-- Search -->
-  <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 -mt-6 relative z-10">
-    <form action="index.php" method="get" class="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-[0_12px_32px_rgba(0,0,0,0.08)]">
+  <div class="mx-auto my-12 max-w-6xl px-6 sm:px-8 lg:px-12">
+    <form action="index.php" method="get">
       <input type="hidden" name="p" value="browse">
       <div class="grid gap-3 sm:grid-cols-[1.5fr_1fr_1fr_auto] sm:items-end">
         <div>
@@ -123,34 +156,19 @@ if ($q !== '' || $catFilter !== '') $countText .= ' ditemukan';
           </select>
         </div>
         <div>
-          <label for="bdate" class="block text-xs font-semibold text-zinc-700">Tanggal</label>
-          <input id="bdate" type="date" name="tanggal" value="<?php echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8'); ?>" class="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm focus:border-vaygor-600 focus:outline-none focus:ring-2 focus:ring-vaygor-600/20">
+          <label for="blokasi" class="block text-xs font-semibold text-zinc-700">Lokasi</label>
+          <input id="blokasi" type="text" name="lokasi" value="<?php echo htmlspecialchars($lokasi, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Cari kota / lokasi, mis. Magelang" class="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm focus:border-vaygor-600 focus:outline-none focus:ring-2 focus:ring-vaygor-600/20">
         </div>
         <button type="submit" class="h-[46px] rounded-xl bg-vaygor-600 px-6 text-sm font-bold text-white hover:bg-vaygor-700">Cari Lapangan</button>
       </div>
-      <p class="mt-2 text-xs text-zinc-500">Tanggal diteruskan ke booking (ketersediaan jam dicek saat booking).</p>
     </form>
   </div>
 
-  <!-- Chips kategori -->
-  <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 mt-5">
-    <div class="flex flex-wrap gap-2">
-      <?php
-      $allHref = chip_href(['q' => $q, 'tanggal' => $date]);
-      $allActive = $catFilter === '';
-      ?>
-      <a href="<?php echo htmlspecialchars($allHref, ENT_QUOTES, 'UTF-8'); ?>" class="rounded-full border px-4 py-2 text-sm font-semibold <?php echo $allActive ? 'border-vaygor-600 bg-vaygor-600 text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-vaygor-600 hover:text-vaygor-600'; ?>">Semua</a>
-      <?php foreach ($kats as $kk): $kkActive = $catFilter === (string) $kk['id_kat']; ?>
-        <a href="<?php echo htmlspecialchars(chip_href(['q' => $q, 'jenis' => $kk['id_kat'], 'tanggal' => $date]), ENT_QUOTES, 'UTF-8'); ?>" class="rounded-full border px-4 py-2 text-sm font-semibold <?php echo $kkActive ? 'border-vaygor-600 bg-vaygor-600 text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-vaygor-600 hover:text-vaygor-600'; ?>"><?php echo htmlspecialchars($kk['name_kat'], ENT_QUOTES, 'UTF-8'); ?></a>
-      <?php endforeach; ?>
-    </div>
-  </div>
 
   <!-- Event banner -->
   <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 mt-6">
     <div class="rounded-2xl bg-gradient-to-br from-vaygor-600 to-vaygor-700 text-white p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
-        <p class="inline-flex rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-widest uppercase ring-1 ring-white/20">Segera hadir</p>
         <h2 class="mt-2 font-spartan text-xl sm:text-2xl font-bold">HAORNAS 2026</h2>
         <p class="mt-1 text-sm text-white/80">Turnamen komunitas - info jadwal menyusul.</p>
       </div>
@@ -160,6 +178,7 @@ if ($q !== '' || $catFilter !== '') $countText .= ' ditemukan';
 
   <!-- Results -->
   <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 mt-8 pb-12">
+    <p class="m-3 text-md text-black/50">Hasil untuk <span class="font-semibold"><?php echo $q !== '' ? htmlspecialchars($q, ENT_QUOTES, 'UTF-8') : ($lokasi !== '' ? 'Lokasi "' . htmlspecialchars($lokasi, ENT_QUOTES, 'UTF-8') . '"' : 'semua venue'); ?></span> - <?php echo htmlspecialchars($countText, ENT_QUOTES, 'UTF-8'); ?></p>
     <?php if ($dbError !== ''): ?>
       <div role="alert" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"><?php echo htmlspecialchars($dbError, ENT_QUOTES, 'UTF-8'); ?></div>
     <?php elseif (empty($venues)): ?>
@@ -197,6 +216,23 @@ if ($q !== '' || $catFilter !== '') $countText .= ' ditemukan';
           </a>
         <?php endforeach; ?>
       </div>
+
+      <?php if ($totalPages > 1): ?>
+        <?php
+        $range = range(max(1, $page - 2), min($totalPages, $page + 2));
+        ?>
+        <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+          <?php if ($page > 1): ?>
+            <a href="<?php echo htmlspecialchars(page_href($page - 1), ENT_QUOTES, 'UTF-8'); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700 transition hover:border-vaygor-600 hover:text-vaygor-600">&larr;</a>
+          <?php endif; ?>
+          <?php foreach ($range as $pg): ?>
+            <a href="<?php echo htmlspecialchars(page_href($pg), ENT_QUOTES, 'UTF-8'); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-xl text-sm font-bold transition <?php echo $pg === $page ? 'bg-vaygor-600 text-white' : 'border border-zinc-200 bg-white text-zinc-700 hover:border-vaygor-600 hover:text-vaygor-600'; ?>"><?php echo (int) $pg; ?></a>
+          <?php endforeach; ?>
+          <?php if ($page < $totalPages): ?>
+            <a href="<?php echo htmlspecialchars(page_href($page + 1), ENT_QUOTES, 'UTF-8'); ?>" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700 transition hover:border-vaygor-600 hover:text-vaygor-600">&rarr;</a>
+          <?php endif; ?>
+        </nav>
+      <?php endif; ?>
     <?php endif; ?>
   </div>
 </section>

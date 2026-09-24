@@ -75,9 +75,8 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
   </div>
 
   <!-- Mobile menu -->
-  <div id="mobileMenu" class="hidden px-5 sm:px-8 lg:hidden">
-    <div class="rounded-2xl bg-white/95 p-5 shadow-2xl ring-1 ring-black/5 backdrop-blur">
-      <div class="flex flex-col gap-1">
+  <div id="mobileMenu" class="hidden mb-5 px-5 sm:px-8 lg:hidden">
+    <div class="flex flex-col gap-1">
         <a href="index.php" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Beranda</a>
         <a href="index.php?p=browse" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Lapangan</a>
         <a href="index.php#venue" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Venue</a>
@@ -110,7 +109,6 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
           <?php endif; ?>
         </div>
       <?php endif; ?>
-    </div>
   </div>
 </nav>
 

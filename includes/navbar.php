@@ -18,6 +18,18 @@ if ($navLoggedIn && !$navName) {
 }
 $navInitial = $navName ? mb_strtoupper(mb_substr(trim($navName), 0, 1)) : 'V';
 $navIsAdmin = $navLoggedIn && $navRole === 'admin';
+
+// Halaman tanpa hero gelap (produk/booking/pesanan/404): nav solid agar teks terbaca.
+// $navForceSolid dihitung di index.php; default transparan bila tidak diset.
+$navSolid = !empty($navForceSolid);
+$navLinkCls = $navSolid ? 'text-zinc-700 transition hover:text-vaygor-600' : 'text-white/85 transition hover:text-neon';
+$navMasukCls = $navSolid ? 'text-sm font-semibold text-zinc-800 transition hover:text-vaygor-600' : 'text-sm font-semibold text-white transition hover:text-neon';
+$navNameCls = $navSolid ? 'max-w-[10rem] truncate text-sm font-bold text-zinc-900' : 'max-w-[10rem] truncate text-sm font-bold text-white';
+$navOutCls = $navSolid ? 'text-xs font-medium text-zinc-500 transition hover:text-vaygor-600' : 'text-xs font-medium text-white/70 transition hover:text-neon';
+$navBurgerCls = $navSolid
+  ? 'flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 transition hover:border-vaygor-600 hover:text-vaygor-600 lg:hidden'
+  : 'flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/20 lg:hidden';
+$navAvatarRing = $navSolid ? 'ring-2 ring-vaygor-600/30' : 'ring-2 ring-white/40';
 ?>
 
 <nav class="absolute inset-x-0 top-0 z-50">
@@ -25,15 +37,15 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
 
     <!-- Logo -->
     <a href="index.php" class="flex items-center">
-      <img src="assets/images/logo(1).svg" class="h-5 w-auto sm:h-6" alt="VAYGOR">
+      <img src="assets/images/logo(1).svg" class="h-5 w-auto sm:h-6<?php echo $navSolid ? ' brightness-0' : ''; ?>" alt="VAYGOR">
     </a>
 
     <!-- Desktop links -->
     <div class="hidden items-center gap-9 lg:flex">
-      <a href="index.php" class="text-sm font-medium text-white/85 transition hover:text-neon">Beranda</a>
-      <a href="index.php?p=browse" class="text-sm font-medium text-white/85 transition hover:text-neon">Lapangan</a>
-      <a href="index.php#venue" class="text-sm font-medium text-white/85 transition hover:text-neon">Venue</a>
-      <a href="index.php#cara" class="text-sm font-medium text-white/85 transition hover:text-neon">Cara Booking</a>
+      <a href="index.php" class="text-sm font-medium <?php echo $navLinkCls; ?>">Beranda</a>
+      <a href="index.php?p=browse" class="text-sm font-medium <?php echo $navLinkCls; ?>">Lapangan</a>
+      <a href="index.php#venue" class="text-sm font-medium <?php echo $navLinkCls; ?>">Venue</a>
+      <a href="index.php#cara" class="text-sm font-medium <?php echo $navLinkCls; ?>">Cara Booking</a>
     </div>
 
     <!-- Desktop auth area -->
@@ -41,24 +53,18 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
 
       <?php if (!$navLoggedIn): ?>
 
-        <a href="login.php" class="text-sm font-semibold text-white transition hover:text-neon">Masuk</a>
+        <a href="login.php" class="<?php echo $navMasukCls; ?>">Masuk</a>
         <a href="index.php?p=browse" class="rounded-xl bg-neon px-6 py-3 text-sm font-bold text-vaygor-950 shadow-lg shadow-black/20 transition hover:scale-[1.03] hover:bg-white">Book Now</a>
 
       <?php else: ?>
 
-        <?php if ($navIsAdmin): ?>
-          <a href="#" class="rounded-xl bg-white/10 px-4 py-2 text-sm font-semibold text-white ring-1 ring-white/30 backdrop-blur transition hover:bg-white/20">
-            Dashboard
-          </a>
-        <?php endif; ?>
-
         <a href="index.php?p=browse" class="rounded-xl bg-neon px-6 py-3 text-sm font-bold text-vaygor-950 shadow-lg shadow-black/20 transition hover:scale-[1.03] hover:bg-white">Book Now</a>
 
         <div class="flex items-center gap-3">
-          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neon text-sm font-extrabold text-vaygor-950 ring-2 ring-white/40"><?= $navInitial; ?></div>
+          <div class="flex h-10 w-10 items-center justify-center rounded-full bg-neon text-sm font-extrabold text-vaygor-950 <?php echo $navAvatarRing; ?>"><?= $navInitial; ?></div>
           <div class="leading-tight">
-            <p class="max-w-[10rem] truncate text-sm font-bold text-white"><?= htmlspecialchars($navName); ?></p>
-            <a href="logout.php" class="text-xs font-medium text-white/70 transition hover:text-neon">Keluar</a>
+            <p class="<?php echo $navNameCls; ?>"><?= htmlspecialchars($navName); ?></p>
+            <a href="logout.php" class="<?php echo $navOutCls; ?>">Keluar</a>
           </div>
         </div>
 
@@ -67,7 +73,7 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
     </div>
 
     <!-- Mobile burger -->
-    <button id="menuBtn" type="button" aria-label="Menu" class="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white ring-1 ring-white/25 backdrop-blur transition hover:bg-white/20 lg:hidden">
+    <button id="menuBtn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="mobileMenu" class="<?php echo $navBurgerCls; ?>">
       <svg id="iconBars" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <path d="M4 6h16M4 12h16M4 18h16" />
       </svg>
@@ -100,17 +106,12 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
           <div class="flex h-10 w-10 items-center justify-center rounded-full bg-vaygor-600 text-sm font-extrabold text-white"><?= $navInitial; ?></div>
           <div class="leading-tight">
             <p class="text-sm font-bold text-gray-900"><?= htmlspecialchars($navName); ?></p>
-            <span class="text-xs font-medium text-vaygor-600"><?= $navIsAdmin ? 'Administrator' : 'Member'; ?></span>
+            <span class="text-xs font-medium text-vaygor-600">Member</span>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <?php if ($navIsAdmin): ?>
-            <a href="#" class="rounded-xl border border-vaygor-200 px-4 py-3 text-center text-sm font-bold text-vaygor-700 transition hover:bg-vaygor-50">Dashboard</a>
-            <a href="logout.php" class="rounded-xl bg-gray-900 px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-gray-700">Keluar</a>
-          <?php else: ?>
-            <a href="index.php?p=browse" class="rounded-xl bg-neon px-4 py-3 text-center text-sm font-bold text-vaygor-950 transition hover:bg-vaygor-600 hover:text-white">Book Now</a>
-            <a href="logout.php" class="rounded-xl border border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-700 transition hover:bg-gray-100">Keluar</a>
-          <?php endif; ?>
+          <a href="index.php?p=browse" class="rounded-xl bg-neon px-4 py-3 text-center text-sm font-bold text-vaygor-950 transition hover:bg-vaygor-600 hover:text-white">Book Now</a>
+          <a href="logout.php" class="rounded-xl border border-gray-300 px-4 py-3 text-center text-sm font-bold text-gray-700 transition hover:bg-gray-100">Keluar</a>
         </div>
       <?php endif; ?>
     </div>
@@ -129,6 +130,7 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
       menu.classList.toggle('hidden', isOpen);
       bars.classList.toggle('hidden', !isOpen);
       close.classList.toggle('hidden', isOpen);
+      btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
     });
   })();
 </script>

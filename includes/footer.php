@@ -55,7 +55,7 @@
         <ul class="mt-4 space-y-3 text-sm text-gray-500">
           <li><a href="#" class="transition hover:text-vaygor-600">Pusat bantuan</a></li>
           <li><a href="#" class="transition hover:text-vaygor-600">Dokumentasi</a></li>
-          <li><a href="login.php" class="transition hover:text-vaygor-600">Daftarkan Akun</a></li>
+          <li><a href="register.php" class="transition hover:text-vaygor-600">Daftarkan Akun</a></li>
         </ul>
       </div>
     </div>

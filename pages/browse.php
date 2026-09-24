@@ -7,6 +7,7 @@ $jenisParam = trim($_GET['jenis'] ?? '');
 $katParam   = trim($_GET['kat'] ?? '');
 $typeParam  = trim($_GET['type'] ?? '');
 $date       = trim($_GET['tanggal'] ?? trim($_GET['date'] ?? ''));
+$urutParam  = trim($_GET['urut'] ?? '');
 
 $catFilter = '';
 $typeFilter = '';
@@ -180,6 +181,103 @@ if (empty($kats) && $typeFilter === '' && $catFilter === '') {
     // keep empty to show only "Semua" - UI already handles
 }
 
+// Rating agregat per venue (hanya booking selesai/confirmed yang dinilai)
+$ratingByField = [];
+try {
+    $qr = mysqli_query($conn, "SELECT id_field, COUNT(*) AS cnt, ROUND(AVG((rate_service + rate_comfort + rate_place) / 3), 1) AS avg_rate FROM bookings WHERE status IN ('completed','confirmed') AND rate_service > 0 GROUP BY id_field");
+    if ($qr) {
+        while ($row = mysqli_fetch_assoc($qr)) {
+            $ratingByField[(int)$row['id_field']] = ['cnt' => (int)$row['cnt'], 'avg' => (float)$row['avg_rate']];
+        }
+    }
+} catch (Throwable $e) {}
+
+// Jam hari ini per venue
+$todayName = date('l');
+$todayHours = [];
+try {
+    $qt = mysqli_query($conn, "SELECT field_id, open_time, close_time FROM field_schedules WHERE day_of_week = '" . mysqli_real_escape_string($conn, $todayName) . "'");
+    if ($qt) {
+        while ($row = mysqli_fetch_assoc($qt)) {
+            $todayHours[(int)$row['field_id']] = substr($row['open_time'], 0, 5) . '-' . substr($row['close_time'], 0, 5);
+        }
+    }
+} catch (Throwable $e) {}
+
+// Sisa slot pada tanggal terpilih (pending/confirmed)
+$slotInfo = [];
+$dateValid = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1 && $date >= date('Y-m-d');
+if ($dateValid) {
+    $dObj = DateTime::createFromFormat('Y-m-d', $date);
+    $dayName = $dObj ? $dObj->format('l') : '';
+    try {
+        $qs = mysqli_query($conn, "SELECT field_id, open_time, close_time FROM field_schedules WHERE day_of_week = '" . mysqli_real_escape_string($conn, $dayName) . "'");
+        $schedules = [];
+        if ($qs) {
+            while ($row = mysqli_fetch_assoc($qs)) $schedules[(int)$row['field_id']] = $row;
+        }
+        $busy = [];
+        $qb = mysqli_query($conn, "SELECT id_field, start_time, end_time FROM bookings WHERE booking_date = '" . mysqli_real_escape_string($conn, $date) . "' AND status IN ('pending','confirmed')");
+        if ($qb) {
+            while ($row = mysqli_fetch_assoc($qb)) $busy[(int)$row['id_field']][] = $row;
+        }
+        foreach ($venues as $v) {
+            $fid = (int)$v['id'];
+            if (!isset($schedules[$fid])) {
+                $slotInfo[$fid] = ['label' => 'Tutup hari itu', 'tone' => 'closed'];
+                continue;
+            }
+            $openH = (int)substr($schedules[$fid]['open_time'], 0, 2);
+            $closeH = (int)substr($schedules[$fid]['close_time'], 0, 2);
+            $openMin = $openH * 60 + (int)substr($schedules[$fid]['open_time'], 3, 2);
+            $closeMin = $closeH * 60 + (int)substr($schedules[$fid]['close_time'], 3, 2);
+            $total = 0;
+            $free = 0;
+            for ($h = 0; $h < 24; $h++) {
+                $sMin = $h * 60;
+                $eMin = $h * 60 + 60;
+                if ($sMin < $openMin || $eMin > $closeMin) continue;
+                $total++;
+                $start = sprintf('%02d:00', $h);
+                $end = sprintf('%02d:00', $h + 1);
+                $taken = false;
+                foreach (($busy[$fid] ?? []) as $b) {
+                    $bs = substr((string)$b['start_time'], 0, 5);
+                    $be = substr((string)$b['end_time'], 0, 5);
+                    if ($start < $be && $end > $bs) { $taken = true; break; }
+                }
+                if (!$taken) $free++;
+            }
+            if ($total === 0) $slotInfo[$fid] = ['label' => 'Tutup hari itu', 'tone' => 'closed'];
+            elseif ($free === 0) $slotInfo[$fid] = ['label' => 'Penuh', 'tone' => 'full'];
+            else $slotInfo[$fid] = ['label' => $free . ' slot tersisa', 'tone' => 'ok'];
+        }
+    } catch (Throwable $e) {}
+}
+
+// Sort: termurah | termahal | nama (default urutan id)
+$urut = in_array($urutParam, ['termurah', 'termahal', 'nama'], true) ? $urutParam : '';
+if ($urut !== '' && !empty($venues)) {
+    usort($venues, function ($a, $b) use ($urut) {
+        $pa = (float)($a['price_per_hour'] ?? $a['price'] ?? 0);
+        $pb = (float)($b['price_per_hour'] ?? $b['price'] ?? 0);
+        if ($urut === 'termurah') return $pa <=> $pb;
+        if ($urut === 'termahal') return $pb <=> $pa;
+        return strcasecmp((string)$a['name'], (string)$b['name']);
+    });
+}
+
+// Chip hanya kategori yang punya venue (hindari filter zonk)
+$katsWithVenue = [];
+try {
+    $qkv = mysqli_query($conn, "SELECT DISTINCT k.id_kat, k.name_kat FROM kategori k INNER JOIN fields_kat fk ON fk.id_kat = k.id_kat ORDER BY k.name_kat");
+    if ($qkv) {
+        while ($row = mysqli_fetch_assoc($qkv)) $katsWithVenue[] = $row;
+    }
+} catch (Throwable $e) {
+    $katsWithVenue = $kats;
+}
+
 function vaygor_img($row)
 {
     $c = $row['image'] ?? '';
@@ -205,6 +303,7 @@ function chip_href($opts = [])
     if (!empty($opts['q'])) $parts[] = 'q=' . urlencode($opts['q']);
     if (!empty($opts['jenis'])) $parts[] = 'jenis=' . urlencode($opts['jenis']);
     if (!empty($opts['tanggal'])) $parts[] = 'tanggal=' . urlencode($opts['tanggal']);
+    if (!empty($opts['urut'])) $parts[] = 'urut=' . urlencode($opts['urut']);
     // keep backward compat for old links
     if (!empty($opts['type'])) $parts[] = 'type=' . urlencode($opts['type']);
     if (!empty($opts['date'])) $parts[] = 'date=' . urlencode($opts['date']);
@@ -216,7 +315,8 @@ if ($q !== '' || $catFilter !== '' || $typeFilter !== '') $countText .= ' ditemu
 ?>
 <section class="relative mt-[-25px]">
   <!-- Hero strip -->
-  <div class="bg-vaygor-600 text-white py-8">
+  <div class="relative overflow-hidden bg-vaygor-600 text-white py-8">
+    <div class="pointer-events-none absolute inset-0 opacity-[0.14]" style="background-image: radial-gradient(circle at 18% 30%, white 1.2px, transparent 1.2px); background-size: 22px 22px;" aria-hidden="true"></div>
     <div class="relative mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 py-15">
       <p class="inline-flex rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold tracking-widest uppercase ring-1 ring-white/20">Jelajahi Lapangan</p>
       <h1 class="mt-3 font-spartan text-3xl sm:text-4xl font-extrabold tracking-tight">Cari yang pas buat timmu</h1>
@@ -242,8 +342,9 @@ if ($q !== '' || $catFilter !== '' || $typeFilter !== '') $countText .= ' ditemu
           <label for="bjenis" class="block text-xs font-semibold text-zinc-700">Jenis Olahraga</label>
           <select id="bjenis" name="jenis" class="mt-1.5 w-full cursor-pointer rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm focus:border-vaygor-600 focus:outline-none focus:ring-2 focus:ring-vaygor-600/20">
             <option value="">Semua olahraga</option>
-            <?php if (!empty($kats)): ?>
-              <?php foreach ($kats as $kk): ?>
+            <?php $chipCats = !empty($katsWithVenue) ? $katsWithVenue : $kats; ?>
+            <?php if (!empty($chipCats)): ?>
+              <?php foreach ($chipCats as $kk): ?>
                 <option value="<?php echo (int) $kk['id_kat']; ?>" <?php echo $catFilter === (string) $kk['id_kat'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($kk['name_kat'], ENT_QUOTES, 'UTF-8'); ?></option>
               <?php endforeach; ?>
             <?php else: ?>
@@ -256,9 +357,18 @@ if ($q !== '' || $catFilter !== '' || $typeFilter !== '') $countText .= ' ditemu
           <label for="bdate" class="block text-xs font-semibold text-zinc-700">Tanggal</label>
           <input id="bdate" type="date" name="tanggal" value="<?php echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8'); ?>" class="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm focus:border-vaygor-600 focus:outline-none focus:ring-2 focus:ring-vaygor-600/20">
         </div>
+        <div>
+          <label for="burut" class="block text-xs font-semibold text-zinc-700">Urutkan</label>
+          <select id="burut" name="urut" class="mt-1.5 w-full cursor-pointer rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm focus:border-vaygor-600 focus:outline-none focus:ring-2 focus:ring-vaygor-600/20">
+            <option value="">Paling relevan</option>
+            <option value="termurah" <?php echo $urut==='termurah'?'selected':''; ?>>Harga termurah</option>
+            <option value="termahal" <?php echo $urut==='termahal'?'selected':''; ?>>Harga tertinggi</option>
+            <option value="nama" <?php echo $urut==='nama'?'selected':''; ?>>Nama A-Z</option>
+          </select>
+        </div>
         <button type="submit" class="h-[46px] rounded-xl bg-vaygor-600 px-6 text-sm font-bold text-white hover:bg-vaygor-700">Cari Lapangan</button>
       </div>
-      <p class="mt-2 text-xs text-zinc-500">Tanggal diteruskan ke booking (ketersediaan jam dicek saat booking).</p>
+      <p class="mt-2 text-xs text-zinc-500">Pilih tanggal untuk lihat sisa slot. Hasil diurutkan sesuai pilihan.</p>
     </form>
   </div>
 
@@ -266,17 +376,19 @@ if ($q !== '' || $catFilter !== '' || $typeFilter !== '') $countText .= ' ditemu
   <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 mt-5">
     <div class="flex flex-wrap gap-2">
       <?php
-      $allHref = chip_href(['q' => $q, 'tanggal' => $date]);
+      $allHref = chip_href(['q' => $q, 'tanggal' => $date, 'urut' => $urut]);
       $allActive = $catFilter === '' && $typeFilter === '';
       ?>
       <a href="<?php echo htmlspecialchars($allHref, ENT_QUOTES, 'UTF-8'); ?>" class="rounded-full border px-4 py-2 text-sm font-semibold <?php echo $allActive ? 'border-vaygor-600 bg-vaygor-600 text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-vaygor-600 hover:text-vaygor-600'; ?>">Semua</a>
-      <?php if (!empty($kats)): ?>
-        <?php foreach ($kats as $kk): $kkActive = $catFilter === (string) $kk['id_kat']; ?>
-          <a href="<?php echo htmlspecialchars(chip_href(['q' => $q, 'jenis' => $kk['id_kat'], 'tanggal' => $date]), ENT_QUOTES, 'UTF-8'); ?>" class="rounded-full border px-4 py-2 text-sm font-semibold <?php echo $kkActive ? 'border-vaygor-600 bg-vaygor-600 text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-vaygor-600 hover:text-vaygor-600'; ?>"><?php echo htmlspecialchars($kk['name_kat'], ENT_QUOTES, 'UTF-8'); ?></a>
+      <?php if (!empty($katsWithVenue)): ?>
+        <?php foreach ($katsWithVenue as $kk): $kkActive = $catFilter === (string) $kk['id_kat'];
+          $hrefK = chip_href(['q' => $q, 'jenis' => $kk['id_kat'], 'tanggal' => $date, 'urut' => $urut]);
+        ?>
+          <a href="<?php echo htmlspecialchars($hrefK, ENT_QUOTES, 'UTF-8'); ?>" class="rounded-full border px-4 py-2 text-sm font-semibold <?php echo $kkActive ? 'border-vaygor-600 bg-vaygor-600 text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-vaygor-600 hover:text-vaygor-600'; ?>"><?php echo htmlspecialchars($kk['name_kat'], ENT_QUOTES, 'UTF-8'); ?></a>
         <?php endforeach; ?>
       <?php else: ?>
-        <?php foreach (['indoor'=>'Indoor','outdoor'=>'Outdoor'] as $tv=>$tl): $tActive = $typeFilter===$tv; ?>
-          <a href="<?php echo htmlspecialchars(chip_href(['q'=>$q,'jenis'=>$tv,'tanggal'=>$date]), ENT_QUOTES, 'UTF-8'); ?>" class="rounded-full border px-4 py-2 text-sm font-semibold <?php echo $tActive ? 'border-vaygor-600 bg-vaygor-600 text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-vaygor-600 hover:text-vaygor-600'; ?>"><?php echo $tl; ?></a>
+        <?php foreach (['indoor'=>'Indoor','outdoor'=>'Outdoor'] as $tv=>$tl): $tActive = $typeFilter===$tv; $hrefT = chip_href(['q'=>$q,'jenis'=>$tv,'tanggal'=>$date,'urut'=>$urut]); ?>
+          <a href="<?php echo htmlspecialchars($hrefT, ENT_QUOTES, 'UTF-8'); ?>" class="rounded-full border px-4 py-2 text-sm font-semibold <?php echo $tActive ? 'border-vaygor-600 bg-vaygor-600 text-white' : 'border-zinc-200 bg-white text-zinc-700 hover:border-vaygor-600 hover:text-vaygor-600'; ?>"><?php echo $tl; ?></a>
         <?php endforeach; ?>
       <?php endif; ?>
     </div>
@@ -327,6 +439,29 @@ if ($q !== '' || $catFilter !== '' || $typeFilter !== '') $countText .= ' ditemu
               </div>
               <h3 class="mt-2 font-spartan text-base font-bold text-zinc-900"><?php echo htmlspecialchars($v['name'], ENT_QUOTES, 'UTF-8'); ?></h3>
               <p class="text-xs text-zinc-500"><?php echo htmlspecialchars($v['location'], ENT_QUOTES, 'UTF-8'); ?></p>
+              <p class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                <?php $rid = (int)$v['id']; $r = $ratingByField[$rid] ?? null; ?>
+                <?php if ($r && $r['cnt'] > 0): ?>
+                  <span class="font-semibold text-zinc-900"><span aria-hidden="true">★</span> <?php echo htmlspecialchars(number_format($r['avg'], 1, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></span>
+                  <span class="text-zinc-500"><?php echo (int)$r['cnt']; ?> ulasan</span>
+                <?php else: ?>
+                  <span class="text-zinc-500">Belum ada ulasan</span>
+                <?php endif; ?>
+                <?php if (isset($todayHours[$rid])): ?>
+                  <span class="text-zinc-400">•</span>
+                  <span class="text-zinc-600">Hari ini <?php echo htmlspecialchars($todayHours[$rid], ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php else: ?>
+                  <span class="text-zinc-400">•</span>
+                  <span class="text-zinc-500">Jadwal menyusul</span>
+                <?php endif; ?>
+              </p>
+              <?php if ($dateValid && isset($slotInfo[$rid])): $si = $slotInfo[$rid]; ?>
+                <p class="mt-1 text-xs font-semibold <?php echo $si['tone']==='ok' ? 'text-vaygor-700' : ($si['tone']==='full' ? 'text-amber-700' : 'text-zinc-500'); ?>"><?php echo htmlspecialchars($si['label'], ENT_QUOTES, 'UTF-8'); ?></p>
+              <?php elseif (!$dateValid && $date !== ''): ?>
+                <p class="mt-1 text-xs text-zinc-500">Tanggal tidak valid, pilih ulang.</p>
+              <?php else: ?>
+                <p class="mt-1 text-xs text-zinc-500">Pilih tanggal untuk cek slot</p>
+              <?php endif; ?>
               <div class="mt-3 flex items-center justify-between">
                 <span class="text-sm font-bold text-vaygor-600"><?php echo htmlspecialchars(vaygor_price(vaygor_resolve_price($v)), ENT_QUOTES, 'UTF-8'); ?>/jam</span>
                 <span class="text-xs font-semibold text-zinc-900 group-hover:text-vaygor-600">Lihat →</span>

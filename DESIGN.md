@@ -26,7 +26,7 @@ Gradien hanya di hero (`#16A34A` ke hitam 60%) untuk kedalaman, bukan di seluruh
 
 ## Copy verdicts (final, terkunci)
 - Footer company: PT VAYGOW (logo tetap VAYGOR, copyright YPLOVRV — disengaja tiga nama, tercatat).
-- Alamat, kontak, copyright, kolom Ekosistem pajangan, rules, review, skor 4.4/25/4.00/3.70/4.50, tag 24 Hour + luas 25x11, P. Agus, HAORNAS 2026: semua KEEP sebagai data real (R-38).
+- Alamat, kontak, copyright, kolom Ekosistem pajangan, rules, review, skor (dinamis dari DB bookings), tag 24 Hour + luas 25x11, P. Agus, HAORNAS 2026: semua KEEP sebagai data real (R-38).
 - Heading produk: Aturan Pak Agus (ganti dari Rules By Nael).
 - Sosmed: opsi A Segera hadir (tanpa comot link tempat lain, R-36).
 - Booking extras: upload bukti untuk pending+confirmed (belum paid), cancel hanya pending milik sendiri.

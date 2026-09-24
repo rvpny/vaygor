@@ -81,6 +81,11 @@ if (!file_exists($dir)) {
   } else {
     include 'pages/beranda.php';
   }
+
+  // Footer global (beranda sudah include footer sendiri di akhir file).
+  if ($p !== 'beranda') {
+    include 'includes/footer.php';
+  }
   ?>
 
 </body>

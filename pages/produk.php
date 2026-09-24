@@ -79,6 +79,71 @@ try {
     while ($row = $r->fetch_assoc()) $other[] = $row;
     $stmt->close();
 } catch (Throwable $e) {}
+
+// Galeri: hanya foto asli venue ini (bukan stok/lain venue).
+$gallery = [];
+$mainImg = p_img($venue);
+$gallery[] = ['src' => $mainImg, 'alt' => 'Foto venue ' . $venue['name']];
+
+// Review dinamis dari bookings (status selesai/confirmed + nilai > 0)
+$reviews = [];
+$reviewCount = 0;
+$avgOverall = 0.0;
+$avgPlace = 0.0;
+$avgComfort = 0.0;
+$avgService = 0.0;
+try {
+    $stmt = $conn->prepare("SELECT b.id_user, b.booking_date, b.rate_service, b.rate_comfort, b.rate_place, b.review, u.name FROM bookings b JOIN users u ON u.id = b.id_user WHERE b.id_field = ? AND b.status IN ('completed','confirmed') AND b.rate_service > 0 AND b.review <> '' ORDER BY b.booking_date DESC, b.id DESC");
+    $stmt->bind_param("i", $vid);
+    $stmt->execute();
+    $r = $stmt->get_result();
+    while ($row = $r->fetch_assoc()) $reviews[] = $row;
+    $stmt->close();
+} catch (Throwable $e) {}
+
+$reviewCount = count($reviews);
+if ($reviewCount > 0) {
+    $sumP = $sumC = $sumS = 0;
+    $bulanId = [1=>'Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+    $tmp = [];
+    foreach ($reviews as $rv) {
+        $sumP += (int)$rv['rate_place'];
+        $sumC += (int)$rv['rate_comfort'];
+        $sumS += (int)$rv['rate_service'];
+        $ts = strtotime($rv['booking_date']);
+        $rv['dateLabel'] = sprintf('%02d %s %d', (int)date('j', $ts), $bulanId[(int)date('n', $ts)] ?? date('M', $ts), (int)date('Y', $ts));
+        $rv['avg'] = ((int)$rv['rate_place'] + (int)$rv['rate_comfort'] + (int)$rv['rate_service']) / 3;
+        $rv['hasReply'] = ((int)$rv['id_user'] === 2 && (int)$venue['id'] === 1);
+        $tmp[] = $rv;
+    }
+    $reviews = $tmp;
+    $avgPlace = $sumP / $reviewCount;
+    $avgComfort = $sumC / $reviewCount;
+    $avgService = $sumS / $reviewCount;
+    $avgOverall = ($avgPlace + $avgComfort + $avgService) / 3;
+}
+$ratingBadge = $reviewCount > 0
+    ? number_format($avgOverall, 1, ',', '.') . ' dari ' . $reviewCount . ' ulasan'
+    : 'Belum ada ulasan';
+
+// Fasilitas: hanya data terkonfirmasi dari DB (deskripsi + kapasitas + kategori).
+$facilityTags = [];
+$capacity = (int)($venue['capacity'] ?? 0);
+if ($capacity > 0) $facilityTags[] = $capacity . ' pemain';
+if ($venueType !== '') $facilityTags[] = ucfirst($venueType);
+try {
+    $stmt = $conn->prepare("SELECT k.name_kat FROM fields_kat fk JOIN kategori k ON k.id_kat = fk.id_kat WHERE fk.id_field = ?");
+    $stmt->bind_param("i", $vid);
+    $stmt->execute();
+    $r = $stmt->get_result();
+    while ($row = $r->fetch_assoc()) {
+        $n = $row['name_kat'];
+        if ($n && !in_array(ucfirst($n), $facilityTags, true) && !in_array($n, $facilityTags, true)) {
+            $facilityTags[] = $n;
+        }
+    }
+    $stmt->close();
+} catch (Throwable $e) {}
 ?>
 <div class="pt-20">
   <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 py-6">
@@ -86,30 +151,51 @@ try {
       <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
       Kembali ke browse
     </a>
+    <p class="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-vaygor-600">Detail venue</p>
   </div>
 
   <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 pb-12">
     <div class="grid gap-6 lg:grid-cols-[1.7fr_1fr]">
       <div class="overflow-hidden rounded-2xl border border-zinc-200 bg-white">
-        <img src="<?php echo htmlspecialchars(p_img($venue), ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($venue['name'], ENT_QUOTES, 'UTF-8'); ?>" class="h-64 sm:h-80 w-full object-cover">
-        <div class="grid grid-cols-2 gap-2 p-2 bg-zinc-50">
-          <img src="assets/images/BI1q9FfyMAeVA3VVQYv2goJnig_2.png" alt="" class="h-28 w-full object-cover rounded-xl">
-          <img src="assets/images/vKBS9C3RJNkcYZLBU3IHvfLjv0_1.png" alt="" class="h-28 w-full object-cover rounded-xl">
-        </div>
+        <img src="<?php echo htmlspecialchars($gallery[0]['src'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($gallery[0]['alt'], ENT_QUOTES, 'UTF-8'); ?>" class="h-64 sm:h-80 w-full object-cover">
+        <?php if (count($gallery) > 1): ?>
+          <div class="grid grid-cols-2 gap-2 p-2 bg-zinc-50">
+            <?php for ($gi = 1; $gi < count($gallery); $gi++): ?>
+              <img src="<?php echo htmlspecialchars($gallery[$gi]['src'], ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($gallery[$gi]['alt'], ENT_QUOTES, 'UTF-8'); ?>" class="h-28 w-full object-cover rounded-xl">
+            <?php endfor; ?>
+          </div>
+        <?php endif; ?>
       </div>
 
       <div class="rounded-2xl border border-zinc-200 bg-white p-6">
         <div class="flex flex-wrap gap-2">
           <span class="rounded-full bg-vaygor-50 px-3 py-1 text-xs font-semibold text-vaygor-700"><?php echo htmlspecialchars(ucfirst($venueType), ENT_QUOTES, 'UTF-8'); ?></span>
-          <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">Football</span>
-          <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">24 Hour</span>
+          <?php if (!empty($scheds)): ?>
+            <?php
+            $openMin = 24 * 60;
+            $closeMin = 0;
+            foreach ($scheds as $s) {
+                $oh = (int)substr($s['open_time'], 0, 2) * 60 + (int)substr($s['open_time'], 3, 2);
+                $ch = (int)substr($s['close_time'], 0, 2) * 60 + (int)substr($s['close_time'], 3, 2);
+                if ($oh < $openMin) $openMin = $oh;
+                if ($ch > $closeMin) $closeMin = $ch;
+            }
+            $isDay = ($openMin <= 0 && $closeMin >= 24 * 60);
+            ?>
+            <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">Jam <?php echo htmlspecialchars(sprintf('%02d:%02d', intdiv($openMin, 60), $openMin % 60), ENT_QUOTES, 'UTF-8'); ?>-<?php echo htmlspecialchars(sprintf('%02d:%02d', intdiv($closeMin, 60) % 24, $closeMin % 60), ENT_QUOTES, 'UTF-8'); ?></span>
+            <?php if ($isDay): ?>
+              <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">Buka 24 jam</span>
+            <?php endif; ?>
+          <?php else: ?>
+            <span class="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-600">Jadwal menyusul</span>
+          <?php endif; ?>
         </div>
         <h1 class="mt-3 font-spartan text-2xl sm:text-3xl font-extrabold tracking-tight"><?php echo htmlspecialchars($venue['name'], ENT_QUOTES, 'UTF-8'); ?></h1>
         <p class="mt-1 text-sm text-zinc-600"><?php echo htmlspecialchars($venue['location'], ENT_QUOTES, 'UTF-8'); ?></p>
         <div class="mt-3 flex items-center gap-2">
           <span class="font-spartan text-2xl font-extrabold text-vaygor-600"><?php echo htmlspecialchars(p_price(p_price_of($venue)), ENT_QUOTES, 'UTF-8'); ?></span>
           <span class="text-sm text-zinc-500">/ jam</span>
-          <span class="ml-auto text-xs text-zinc-500">25 Reviews • 4.4</span>
+          <span class="ml-auto text-xs text-zinc-500"><?php echo htmlspecialchars($ratingBadge, ENT_QUOTES, 'UTF-8'); ?></span>
         </div>
         <a href="index.php?p=booking&id=<?php echo (int)$venue['id']; ?>" class="mt-6 flex w-full items-center justify-center rounded-xl bg-vaygor-600 px-6 py-3.5 text-sm font-bold text-white hover:bg-vaygor-700">Booking Sekarang</a>
         <p class="mt-2 text-center text-xs text-zinc-500">Cek jadwal di bawah sebelum booking.</p>
@@ -125,12 +211,26 @@ try {
         </div>
 
         <div class="rounded-2xl border border-zinc-200 bg-white p-6">
+          <h2 class="font-spartan text-lg font-bold">Fasilitas</h2>
+          <?php if (!empty($facilityTags)): ?>
+            <ul class="mt-3 flex flex-wrap gap-2 text-sm">
+              <?php foreach ($facilityTags as $tag): ?>
+                <li class="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-zinc-700"><?php echo htmlspecialchars($tag, ENT_QUOTES, 'UTF-8'); ?></li>
+              <?php endforeach; ?>
+            </ul>
+          <?php else: ?>
+            <p class="mt-2 text-sm text-zinc-600">Info fasilitas menyusul dari pengelola venue.</p>
+          <?php endif; ?>
+        </div>
+
+        <div class="rounded-2xl border border-zinc-200 bg-white p-6">
           <h2 class="font-spartan text-lg font-bold">Detail venue</h2>
           <dl class="mt-3 grid grid-cols-2 gap-3 text-sm">
             <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Luas</dt><dd class="font-semibold">25 x 11</dd></div>
             <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Harga</dt><dd class="font-semibold"><?php echo htmlspecialchars(p_price(p_price_of($venue)), ENT_QUOTES, 'UTF-8'); ?>/jam</dd></div>
             <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Tipe</dt><dd class="font-semibold"><?php echo htmlspecialchars(ucfirst($venueType), ENT_QUOTES, 'UTF-8'); ?></dd></div>
-            <div class="rounded-xl bg-zinc-50 p-3"><dt class="text-xs text-zinc-500">Lokasi</dt><dd class="font-semibold"><?php echo htmlspecialchars($venue['location'], ENT_QUOTES, 'UTF-8'); ?></dd></div>
+            <div class="rounded-xl bg-zinc-50 p-3 col-span-2"><dt class="text-xs text-zinc-500">Kapasitas</dt><dd class="font-semibold"><?php echo $capacity > 0 ? htmlspecialchars((string)$capacity, ENT_QUOTES, 'UTF-8') . ' pemain' : 'Belum tersedia'; ?></dd></div>
+            <div class="rounded-xl bg-zinc-50 p-3 col-span-2"><dt class="text-xs text-zinc-500">Lokasi</dt><dd class="font-semibold"><?php echo htmlspecialchars($venue['location'], ENT_QUOTES, 'UTF-8'); ?></dd></div>
           </dl>
         </div>
 
@@ -168,27 +268,43 @@ try {
 
         <div id="ulasan" class="rounded-2xl border border-zinc-200 bg-white p-6">
           <h2 class="font-spartan text-lg font-bold">Ulasan Penyewa</h2>
-          <div class="mt-3 flex items-center gap-3">
-            <span class="font-spartan text-3xl font-extrabold">4.4</span>
-            <span class="text-sm text-zinc-600">25 Reviews</span>
-          </div>
-          <div class="mt-4 space-y-3">
-            <div class="flex justify-between text-sm"><span>Kondisi Lapangan</span><b>4.00</b></div>
-            <div class="flex justify-between text-sm"><span>Kenyamanan &amp; Kebersihan</span><b>3.70</b></div>
-            <div class="flex justify-between text-sm"><span>Komunikasi</span><b>4.50</b></div>
-          </div>
-          <div class="mt-6 rounded-xl bg-zinc-50 p-4">
-            <div class="flex gap-3">
-              <img src="assets/images/rafael.png" alt="Rafael" class="h-9 w-9 rounded-full object-cover">
-              <div><p class="text-sm font-semibold">@Basis nama tengahku</p><p class="text-xs text-zinc-500">07 Agustus 2026</p></div>
+          <?php if ($reviewCount === 0): ?>
+            <div class="mt-3 rounded-xl border border-zinc-200 bg-zinc-50 p-5 text-center">
+              <p class="text-sm font-semibold text-zinc-700">Belum ada ulasan untuk venue ini.</p>
+              <p class="mt-1 text-xs text-zinc-500">Jadi yang pertama setelah main di sini.</p>
             </div>
-            <p class="mt-3 text-sm">WOYY itu danis suruh pulang cok... ganggu ae</p>
-            <div class="mt-3 rounded-xl bg-white p-3 border border-zinc-100">
-              <p class="text-xs font-semibold">Balasan dari Lapangan Pancuranmas (P.Agus):</p>
-              <p class="text-sm">Bayar harus dikejar dulu sampai masjid lu, untung tertangkap kau SUKI!!!</p>
+          <?php else: ?>
+            <div class="mt-3 flex items-center gap-3">
+              <span class="font-spartan text-3xl font-extrabold"><?php echo htmlspecialchars(number_format($avgOverall, 1, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></span>
+              <span class="text-sm text-zinc-600"><?php echo (int)$reviewCount; ?> Ulasan</span>
             </div>
-          </div>
-          <a href="#ulasan" class="mt-4 inline-flex text-sm font-semibold text-vaygor-600">Lihat semua ulasan</a>
+            <div class="mt-4 space-y-3">
+              <div class="flex justify-between text-sm"><span>Kondisi Lapangan</span><b><?php echo htmlspecialchars(number_format($avgPlace, 2, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></b></div>
+              <div class="flex justify-between text-sm"><span>Kenyamanan &amp; Kebersihan</span><b><?php echo htmlspecialchars(number_format($avgComfort, 2, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></b></div>
+              <div class="flex justify-between text-sm"><span>Komunikasi</span><b><?php echo htmlspecialchars(number_format($avgService, 2, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></b></div>
+            </div>
+            <div class="mt-6 space-y-3">
+              <?php foreach ($reviews as $rv): ?>
+                <div class="rounded-xl bg-zinc-50 p-4">
+                  <div class="flex gap-3">
+                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-vaygor-600 text-xs font-bold text-white" aria-hidden="true"><?php echo htmlspecialchars(strtoupper(mb_substr(trim((string)$rv['name']), 0, 1, 'UTF-8')), ENT_QUOTES, 'UTF-8'); ?></div>
+                    <div>
+                      <p class="text-sm font-semibold"><?php echo htmlspecialchars($rv['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+                      <p class="text-xs text-zinc-500"><?php echo htmlspecialchars($rv['dateLabel'] ?? '', ENT_QUOTES, 'UTF-8'); ?> • <span aria-hidden="true">★</span> <?php echo htmlspecialchars(number_format($rv['avg'], 1, ',', '.'), ENT_QUOTES, 'UTF-8'); ?></p>
+                    </div>
+                  </div>
+                  <p class="mt-3 text-sm text-zinc-800"><?php echo htmlspecialchars($rv['review'], ENT_QUOTES, 'UTF-8'); ?></p>
+                  <?php if (!empty($rv['hasReply'])): ?>
+                    <div class="mt-3 rounded-xl bg-white p-3 border border-zinc-100">
+                      <p class="text-xs font-semibold">Balasan dari Lapangan Pancuranmas (P.Agus):</p>
+                      <p class="text-sm">Bayar harus dikejar dulu sampai masjid lu, untung tertangkap kau SUKI!!!</p>
+                    </div>
+                  <?php endif; ?>
+                </div>
+              <?php endforeach; ?>
+            </div>
+            <p class="mt-4 text-xs text-zinc-500">Menampilkan <?php echo (int)$reviewCount; ?> ulasan terakhir untuk venue ini.</p>
+          <?php endif; ?>
         </div>
       </div>
 

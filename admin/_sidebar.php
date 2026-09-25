@@ -33,7 +33,7 @@ $navItems = [
         <small><?= e($navUser['email']) ?></small>
       </span>
     </div>
-    <form method="post" action="../auth/logout.php">
+    <form method="post" action="../logout.php">
       <?= csrf_field() ?>
       <button class="admin-logout" type="submit">Logout</button>
     </form>

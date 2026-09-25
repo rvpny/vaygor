@@ -1407,6 +1407,47 @@ input, select { font-family: inherit; }
 
 .auth-alt a:hover { text-decoration: underline; }
 
+.auth-alert.is-ok { background: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+
+.auth-err {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #b91c1c;
+}
+
+.auth-field input[aria-invalid="true"] {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.auth-hero-title em { color: var(--lime); font-style: normal; }
+
+.auth-pass { position: relative; }
+
+.auth-pass input { padding-right: 44px; }
+
+.auth-eye {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.auth-eye:hover { background: #f4f4f5; color: #374151; }
+
+.auth-eye svg { width: 16px; height: 16px; }
+
 .auth-demo {
   margin-top: 16px;
   padding: 0 14px;

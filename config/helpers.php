@@ -1,7 +1,7 @@
 <?php
 /**
  * Helper bersama: session, CSRF, auth, escaping.
- * Halaman di subfolder (auth/, admin/, user/) boleh memakainya.
+ * Halaman di subfolder (admin/, user/) boleh memakainya.
  */
 
 require_once __DIR__ . '/database.php';
@@ -103,7 +103,7 @@ function logout(): void
 function require_login(): void
 {
     if (!is_logged_in()) {
-        redirect('../auth/login.php');
+        redirect('../login.php');
     }
 }
 
@@ -111,6 +111,6 @@ function require_role(string $role): void
 {
     require_login();
     if ((current_user()['role'] ?? '') !== $role) {
-        redirect('../auth/login.php');
+        redirect('../login.php');
     }
 }

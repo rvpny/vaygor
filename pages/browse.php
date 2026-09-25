@@ -87,6 +87,31 @@ try {
 } catch (Throwable $e) {
 }
 
+// Lapangan yang pernah disewa user (buat card "Sewa Lagi")
+$rentAgain = [];
+if (!empty($_SESSION['id'])) {
+  try {
+    $stmt = $conn->prepare("
+      SELECT f.id, f.name, f.location, f.price, f.image,
+             MAX(b.booking_date) AS last_booked,
+             COUNT(b.id) AS times_rented
+      FROM bookings b
+      JOIN fields f ON f.id = b.id_field
+      WHERE b.id_user = ? AND b.status <> 'cancelled'
+      GROUP BY f.id, f.name, f.location, f.price, f.image
+      ORDER BY last_booked DESC, times_rented DESC
+      LIMIT 6");
+    $uid = (int) $_SESSION['id'];
+    $stmt->bind_param('i', $uid);
+    $stmt->execute();
+    $rr = $stmt->get_result();
+    while ($row = $rr->fetch_assoc()) $rentAgain[] = $row;
+    $stmt->close();
+  } catch (Throwable $e) {
+    $rentAgain = [];
+  }
+}
+
 function vaygor_img($row)
 {
   $c = $row['image'] ?? '';
@@ -175,6 +200,38 @@ if ($q !== '' || $catFilter !== '' || $lokasi !== '') $countText .= ' ditemukan'
       <span class="inline-flex rounded-xl bg-[#B6F500] px-5 py-2.5 text-sm font-bold text-zinc-900">Segera hadir</span>
     </div>
   </div>
+
+  <!-- Sewa Lagi -->
+  <?php if (!empty($rentAgain)): ?>
+  <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 mt-10">
+    <div class="flex flex-wrap items-end justify-between gap-2">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-[0.2em] text-vaygor-600">Sewa Lagi</p>
+        <h2 class="mt-1 font-spartan text-xl sm:text-2xl font-extrabold text-zinc-900">Lapangan yang pernah kamu sewa</h2>
+      </div>
+      <a href="index.php?p=pesanan" class="text-sm font-semibold text-vaygor-600 hover:text-vaygor-700">Lihat semua pesanan →</a>
+    </div>
+
+    <div class="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4">
+      <?php foreach ($rentAgain as $rv):
+        $rcats = $catsByField[$rv['id']] ?? [];
+      ?>
+        <a href="index.php?p=produk&id=<?php echo (int) $rv['id']; ?>"
+           class="group flex w-75 flex-shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition hover:shadow-md hover:-translate-y-0.5">
+          <div class="h-44 overflow-hidden bg-zinc-100">
+            <img src="<?php echo htmlspecialchars(vaygor_img($rv), ENT_QUOTES, 'UTF-8'); ?>" alt="<?php echo htmlspecialchars($rv['name'], ENT_QUOTES, 'UTF-8'); ?>" class="h-full w-full object-cover transition duration-300 group-hover:scale-[1.04]" loading="lazy">
+          </div>
+          <div class="flex flex-1 flex-col py-4 px-2">
+            <p class="text-[11px] font-semibold text-zinc-400">Terakhir: <?php echo htmlspecialchars(date('d M', strtotime($rv['last_booked'])), ENT_QUOTES, 'UTF-8'); ?><?php echo (int) $rv['times_rented'] > 1 ? ' • ' . (int) $rv['times_rented'] . 'x' : ''; ?></p>
+            <h3 class="mt-1 line-clamp-2 text-sm font-bold leading-snug text-zinc-900"><?php echo htmlspecialchars($rv['name'], ENT_QUOTES, 'UTF-8'); ?></h3>
+            <p class="mt-1 line-clamp-1 text-[11px] text-zinc-500"><?php echo htmlspecialchars($rv['location'], ENT_QUOTES, 'UTF-8'); ?></p>
+            <p class="mt-auto pt-2 text-sm font-bold text-vaygor-600"><?php echo htmlspecialchars(vaygor_price($rv['price']), ENT_QUOTES, 'UTF-8'); ?></p>
+          </div>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+  <?php endif; ?>
 
   <!-- Results -->
   <div class="mx-auto max-w-6xl px-6 sm:px-8 lg:px-12 mt-8 pb-12">

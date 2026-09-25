@@ -1,5 +1,6 @@
 ﻿<?php
 $vid = (int)($_GET['id'] ?? 1);
+$uid = !empty($_SESSION['id']) ? (int) $_SESSION['id'] : 0;
 $venue = null;
 try {
   $stmt = $conn->prepare("
@@ -136,6 +137,32 @@ try {
 } catch (Throwable $e) {
 }
 
+// Apakah user yang login punya booking "bisa direviews" untuk venue ini
+$reviewAvailable = false;
+$reviewBookingId = 0;
+$alreadyReviewed = false;
+if (!empty($_SESSION['id'])) {
+  try {
+    $rbq = $conn->prepare("SELECT b.id, b.rate_service, b.rate_comfort, b.rate_place, b.review
+        FROM bookings b
+        JOIN payments p ON p.booking_id = b.id
+        WHERE b.id_user = ? AND b.id_field = ? AND b.status IN ('confirmed','completed')
+          AND (b.status = 'completed' OR b.booking_date <= CURDATE()) AND p.payment_status = 'paid'
+        ORDER BY b.booking_date DESC
+        LIMIT 1");
+    $rbq->bind_param("ii", $uid, $vid);
+    $rbq->execute();
+    $rb = $rbq->get_result()->fetch_assoc();
+    $rbq->close();
+    if ($rb) {
+      $reviewAvailable = true;
+      $reviewBookingId = (int) $rb['id'];
+      $alreadyReviewed = (int) $rb['rate_service'] > 0 && (int) $rb['rate_comfort'] > 0 && (int) $rb['rate_place'] > 0 && trim((string) ($rb['review'] ?? '')) !== '';
+    }
+  } catch (Throwable $e) {
+  }
+}
+
 $userLoggedIn = !empty($_SESSION['id']);
 $bookUrl = $userLoggedIn
   ? 'index.php?p=booking&id=' . (int) $venue['id']
@@ -204,7 +231,20 @@ $bookLabel = $userLoggedIn ? 'Booking Sekarang' : 'Masuk untuk Booking';
         </div>
 
         <div id="ulasan" class="rounded-2xl border border-zinc-200 bg-white p-6">
-          <h2 class="font-spartan text-lg font-bold">Ulasan Penyewa</h2>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <h2 class="font-spartan text-lg font-bold">Ulasan Penyewa</h2>
+            <?php if ($reviewAvailable): ?>
+              <a href="index.php?p=review&id=<?php echo (int) $reviewBookingId; ?>" class="inline-flex items-center gap-1.5 rounded-xl bg-vaygor-600 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-vaygor-700">
+                <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                <?php echo $alreadyReviewed ? 'Perbarui Ulasan' : 'Tulis Ulasan'; ?>
+              </a>
+            <?php elseif (!$userLoggedIn): ?>
+              <a href="login.php?redirect=<?php echo urlencode('index.php?p=produk&id=' . (int) $venue['id']); ?>" class="inline-flex items-center gap-1.5 rounded-xl border border-vaygor-200 bg-white px-4 py-2.5 text-xs font-bold text-vaygor-600 transition hover:bg-vaygor-50">
+                <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                Masuk untuk menulis ulasan
+              </a>
+            <?php endif; ?>
+          </div>
           <?php if ($ratingData['count'] > 0): ?>
             <div class="mt-3 flex items-center gap-3">
               <span class="font-spartan text-3xl font-extrabold"><?php echo number_format($ratingData['avg'], 1); ?></span>
@@ -225,7 +265,7 @@ $bookLabel = $userLoggedIn ? 'Booking Sekarang' : 'Masuk untuk Booking';
               $avg = ($rv['rate_service'] > 0) ? round(($rv['rate_service'] + $rv['rate_comfort'] + $rv['rate_place']) / 3, 1) : 0;
               $date = date('d F Y', strtotime($rv['booking_date']));
               ?>
-              <div class="w-[320px] flex-shrink-0 rounded-xl bg-zinc-50 p-4">
+              <div class=" flex-shrink-0 rounded-xl bg-zinc-50 mt-5 p-4 border border-zinc-200">
                 <div class="flex items-center gap-3">
                   <span class="flex h-9 w-9 items-center justify-center rounded-full bg-vaygor-600 text-xs font-extrabold text-white"><?php echo htmlspecialchars($initial, ENT_QUOTES, 'UTF-8'); ?></span>
                   <div class="flex-1 min-w-0">
@@ -260,8 +300,6 @@ $bookLabel = $userLoggedIn ? 'Booking Sekarang' : 'Masuk untuk Booking';
                 </div>
               </div>
             <?php endif; ?>
-          <?php else: ?>
-            <p class="mt-3 text-sm text-zinc-500"><?php echo $ratingData['count'] > 0 ? 'Belum ada ulasan tertulis untuk lapangan ini.' : 'Belum ada ulasan untuk lapangan ini. Jadilah yang pertama!'; ?></p>
           <?php endif; ?>
           <script>
             (function () {

@@ -18,7 +18,7 @@ if (isset($_POST['login'])) {
     if ($email === '' || $pass === '') {
         $errorMsg = 'Email dan kata sandi wajib diisi.';
     } else {
-        $stmt = $conn->prepare("SELECT id, password, role FROM users WHERE email = ? AND role = 'user' AND status = 'active' LIMIT 1");
+        $stmt = $conn->prepare("SELECT id, password, role FROM users WHERE email = ? AND status = 'active' LIMIT 1");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();

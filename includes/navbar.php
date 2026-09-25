@@ -33,8 +33,12 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
     <div class="hidden items-center gap-9 lg:flex">
       <a href="index.php" class="nav-link">Beranda</a>
       <a href="index.php?p=browse" class="nav-link">Lapangan</a>
+      <?php if ($navLoggedIn): ?>
+        <a href="index.php?p=pesanan" class="nav-link">Pesanan</a>
+      <?php else: ?>
       <a href="index.php#venue" class="nav-link">Venue</a>
       <a href="index.php#cara" class="nav-link">Cara Booking</a>
+      <?php endif; ?>
     </div>
 
     <!-- Desktop auth area -->
@@ -48,7 +52,7 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
       <?php else: ?>
 
         <?php if ($navIsAdmin): ?>
-          <a href="#" class="admin-pill">Dashboard</a>
+          <a href="admin/index.php" class="admin-pill">Dashboard</a>
         <?php endif; ?>
 
         <div class="flex items-center gap-3">
@@ -79,8 +83,12 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
     <div class="flex flex-col gap-1">
         <a href="index.php" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Beranda</a>
         <a href="index.php?p=browse" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Lapangan</a>
-        <a href="index.php#venue" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Venue</a>
+        <?php if ($navLoggedIn): ?>
+        <a href="index.php?p=pesanan" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Pesanan</a>
+        <?php else: ?>
         <a href="index.php#cara" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Cara Booking</a>
+        <a href="index.php#venue" class="rounded-xl px-4 py-3 text-sm font-semibold text-gray-800 transition hover:bg-vaygor-50 hover:text-vaygor-600">Venue</a>
+      <?php endif; ?>
       </div>
 
       <div class="my-3 h-px bg-gray-200"></div>
@@ -101,7 +109,7 @@ $navIsAdmin = $navLoggedIn && $navRole === 'admin';
         </div>
         <div class="grid grid-cols-2 gap-3">
           <?php if ($navIsAdmin): ?>
-            <a href="#" class="rounded-xl border border-vaygor-200 px-4 py-3 text-center text-sm font-bold text-vaygor-700 transition hover:bg-vaygor-50">Dashboard</a>
+            <a href="admin/index.php" class="rounded-xl border border-vaygor-200 px-4 py-3 text-center text-sm font-bold text-vaygor-700 transition hover:bg-vaygor-50">Dashboard</a>
             <a href="logout.php" class="rounded-xl bg-gray-900 px-4 py-3 text-center text-sm font-bold text-white transition hover:bg-gray-700">Keluar</a>
           <?php else: ?>
             <a href="index.php?p=browse" class="rounded-xl bg-neon px-4 py-3 text-center text-sm font-bold text-vaygor-950 transition hover:bg-vaygor-600 hover:text-white">Book Now</a>
